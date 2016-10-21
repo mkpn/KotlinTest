@@ -1,11 +1,12 @@
 package com.example.yoshida_makoto.kotlintest
 
 import android.databinding.ObservableList
+import android.support.v7.widget.RecyclerView
 
 /**
  * Created by yoshida_makoto on 2016/10/07.
  */
-class ObservableListCallback<T : ObservableList<T>>(private val adapter: ListAdapter) : ObservableList.OnListChangedCallback<T>(){
+class ObservableListCallback<T : ObservableList<*>>(private val adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>) : ObservableList.OnListChangedCallback<T>(){
     override fun onChanged(p0: T) {
     }
 
