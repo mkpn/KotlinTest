@@ -5,18 +5,18 @@ import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.media.MediaCodec
+import android.media.PlaybackParams
 import android.os.Bundle
 import android.provider.MediaStore
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import com.example.yoshida_makoto.kotlintest.databinding.PlayerActivityBinding
 import com.google.android.exoplayer.*
-import com.google.android.exoplayer.audio.AudioTrack
 import com.google.android.exoplayer.extractor.ExtractorSampleSource
 import com.google.android.exoplayer.upstream.DefaultAllocator
 import com.google.android.exoplayer.upstream.DefaultUriDataSource
 
-class PlayerActivity : AppCompatActivity(), ExoPlayer.Listener, MediaCodecAudioTrackRenderer.EventListener {
+class PlayerActivity : AppCompatActivity(), ExoPlayer.Listener {
 
     var player: ExoPlayer? = null;
 
@@ -46,14 +46,23 @@ class PlayerActivity : AppCompatActivity(), ExoPlayer.Listener, MediaCodecAudioT
                 BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE)
         val videoRenderer = MediaCodecVideoTrackRenderer(this, sampleSource,
                 MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT)
-        val audioRenderer = MediaCodecAudioTrackRenderer(
-                sampleSource, MediaCodecSelector.DEFAULT)
+
+        val audioRenderer = MediaCodecAudioTrackRenderer(sampleSource, MediaCodecSelector.DEFAULT)
+
         val rendererArray = arrayOf<TrackRenderer>(videoRenderer, audioRenderer)
 
         val exoPlayer = ExoPlayer.Factory.newInstance(rendererArray.size)
         exoPlayer.prepare(*rendererArray)
-        exoPlayer.sendMessage(videoRenderer, MediaCodecVideoTrackRenderer.MSG_SET_SURFACE, null)
+
+        // ここでキー変えてる まじ大事なところ
+        val pitch = generatePitchFrequency(3)
+        exoPlayer.sendMessage(audioRenderer, MediaCodecAudioTrackRenderer.MSG_SET_PLAYBACK_PARAMS, PlaybackParams().setPitch(pitch))
+
         exoPlayer.playWhenReady = true
+    }
+
+    fun generatePitchFrequency(key: Int): Float {
+        return Math.pow(2.0, key.toDouble() / 12).toFloat()
     }
 
     override fun onPlayerError(error: ExoPlaybackException?) {
@@ -66,29 +75,5 @@ class PlayerActivity : AppCompatActivity(), ExoPlayer.Listener, MediaCodecAudioT
 
     override fun onPlayWhenReadyCommitted() {
         Log.d("デバッグ", "onPlayWhenReadyCommitted")
-    }
-
-    override fun onAudioTrackInitializationError(e: AudioTrack.InitializationException?) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onAudioTrackWriteError(e: AudioTrack.WriteException?) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onAudioTrackUnderrun(bufferSize: Int, bufferSizeMs: Long, elapsedSinceLastFeedMs: Long) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onDecoderInitializationError(e: MediaCodecTrackRenderer.DecoderInitializationException?) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onDecoderInitialized(decoderName: String?, elapsedRealtimeMs: Long, initializationDurationMs: Long) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onCryptoError(e: MediaCodec.CryptoException?) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }
