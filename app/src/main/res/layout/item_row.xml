@@ -5,7 +5,7 @@
 
     <data>
 
-        <import type="com.example.yoshida_makoto.kotlintest.viewmodel.ItemRowViewModel"/>
+        <import type="com.example.yoshida_makoto.kotlintest.ui.viewmodel.ItemRowViewModel"/>
 
         <variable
             name="vm"

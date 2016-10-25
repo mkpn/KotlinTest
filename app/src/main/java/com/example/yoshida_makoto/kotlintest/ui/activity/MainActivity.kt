@@ -1,4 +1,4 @@
-package com.example.yoshida_makoto.kotlintest
+package com.example.yoshida_makoto.kotlintest.ui.activity
 
 import android.Manifest
 import android.content.Intent
@@ -12,11 +12,13 @@ import android.support.annotation.Nullable
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import com.example.yoshida_makoto.kotlintest.ObservableListCallback
 import com.example.yoshida_makoto.kotlintest.R.layout.activity_main
 import com.example.yoshida_makoto.kotlintest.databinding.ActivityMainBinding
 import com.example.yoshida_makoto.kotlintest.entity.Song
 import com.example.yoshida_makoto.kotlintest.events.ClickSongEvent
 import com.example.yoshida_makoto.kotlintest.events.TransitToDetailEvent
+import com.example.yoshida_makoto.kotlintest.ui.adapter.SongListAdapter
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 

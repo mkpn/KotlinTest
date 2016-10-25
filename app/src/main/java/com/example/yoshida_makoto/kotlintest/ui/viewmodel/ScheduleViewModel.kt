@@ -1,4 +1,4 @@
-package com.example.yoshida_makoto.kotlintest.viewmodel
+package com.example.yoshida_makoto.kotlintest.ui.viewmodel
 
 import android.databinding.ObservableField
 

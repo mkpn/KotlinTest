@@ -1,4 +1,4 @@
-package com.example.yoshida_makoto.kotlintest
+package com.example.yoshida_makoto.kotlintest.ui.adapter
 
 import android.databinding.ObservableArrayList
 import android.support.v7.widget.RecyclerView

@@ -1,4 +1,4 @@
-package com.example.yoshida_makoto.kotlintest.viewmodel
+package com.example.yoshida_makoto.kotlintest.ui.viewmodel
 
 import android.view.View
 import com.example.yoshida_makoto.kotlintest.entity.Song

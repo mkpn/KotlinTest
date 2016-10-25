@@ -1,13 +1,14 @@
-package com.example.yoshida_makoto.kotlintest
+package com.example.yoshida_makoto.kotlintest.ui.adapter
 
 import android.content.Context
 import android.databinding.ObservableArrayList
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.example.yoshida_makoto.kotlintest.ui.adapter.MyListAdapter
 import com.example.yoshida_makoto.kotlintest.databinding.ItemRowBinding
 import com.example.yoshida_makoto.kotlintest.entity.Song
-import com.example.yoshida_makoto.kotlintest.viewmodel.ItemRowViewModel
+import com.example.yoshida_makoto.kotlintest.ui.viewmodel.ItemRowViewModel
 
 /**
  * Created by yoshida_makoto on 2016/09/06.
