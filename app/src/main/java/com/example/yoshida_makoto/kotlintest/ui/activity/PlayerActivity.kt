@@ -25,6 +25,8 @@ class PlayerActivity : AppCompatActivity() {
         val binding = DataBindingUtil.setContentView<PlayerActivityBinding>(this, R.layout.player_activity);
         binding.pitchDown.setOnClickListener { player.sendChangePitchMessage(-1) }
         binding.pitchUp.setOnClickListener { player.sendChangePitchMessage(1) }
+        binding.start.setOnClickListener { player.start() }
+        binding.stop.setOnClickListener { player.stop() }
         val songId = intent.getLongExtra("song_id", 0)
 
         player.playSong(songId)

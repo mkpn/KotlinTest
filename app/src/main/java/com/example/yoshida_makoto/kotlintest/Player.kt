@@ -72,4 +72,12 @@ class Player(val context: Context) : ExoPlayer.Listener {
         exoPlayer.prepare(*rendererArray)
         exoPlayer.sendMessage(audioRenderer, MediaCodecAudioTrackRenderer.MSG_SET_PLAYBACK_PARAMS, null)
     }
+
+    fun start() {
+        exoPlayer.playWhenReady = true
+    }
+
+    fun stop() {
+        exoPlayer.playWhenReady = false
+    }
 }
