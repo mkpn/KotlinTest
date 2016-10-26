@@ -52,7 +52,6 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     fun playSong(songId: Long) {
-
         // Produces DataSource instances through which media data is loaded.
         val dataSourceFactory = DefaultDataSourceFactory(context,
                 Util.getUserAgent(context, context.getString(R.string.app_name)), defaultBandwidthMeter);
@@ -64,6 +63,16 @@ class Player(val context: Context) : ExoPlayer.EventListener,
         val audioSource = ExtractorMediaSource(trackUri, dataSourceFactory, extractorsFactory, null, null)
         // Prepare the player with the source.
         exoPlayer.prepare(audioSource)
+
+        // 曲変えても、前の曲でいじったkeyの値を引き回してしまう。。。
+        // TODO SongEntityにkeyの情報もたせてそれに合わせて再生するようにすれば良さげ
+        key = 0.0f
+        val playbackParams = PlaybackParams().apply {
+            // TODO ここでDBの設定とか読み込んで反映できたらいいなー
+            pitch = 1.0f
+            speed = 1.0f
+        }
+        exoPlayer.playbackParams = playbackParams
     }
 
     fun setPlayerView(playerView: SimpleExoPlayerView?) {
