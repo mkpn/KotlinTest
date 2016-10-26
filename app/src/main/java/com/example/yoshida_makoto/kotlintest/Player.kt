@@ -2,27 +2,72 @@ package com.example.yoshida_makoto.kotlintest
 
 import android.content.ContentUris
 import android.content.Context
-import android.media.MediaCodec
 import android.media.PlaybackParams
+import android.os.Handler
 import android.provider.MediaStore
-import com.google.android.exoplayer.*
-import com.google.android.exoplayer.extractor.ExtractorSampleSource
-import com.google.android.exoplayer.upstream.DefaultAllocator
-import com.google.android.exoplayer.upstream.DefaultUriDataSource
+import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
+import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.trackselection.*
+import com.google.android.exoplayer2.ui.PlaybackControlView
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.util.Util
 
 /**
  * Created by yoshida_makoto on 2016/10/25.
  */
-class Player(val context: Context) : ExoPlayer.Listener {
-    private val BUFFER_SEGMENT_SIZE = 64 * 1024
-    private val BUFFER_SEGMENT_COUNT = 256
-    private val EXOPLAYER_INITIAL_RENDER_SIZE = 2
-    var audioRenderer: MediaCodecAudioTrackRenderer? = null
-    val exoPlayer: ExoPlayer = ExoPlayer.Factory.newInstance(EXOPLAYER_INITIAL_RENDER_SIZE)
+class Player(val context: Context) : ExoPlayer.EventListener,
+        TrackSelector.EventListener<MappingTrackSelector.MappedTrackInfo>,
+        PlaybackControlView.VisibilityListener {
+
+    val mainHandler = Handler()
+    val defaultBandwidthMeter = DefaultBandwidthMeter()
+    val videoTrackSelectionFactory = AdaptiveVideoTrackSelection.Factory(defaultBandwidthMeter)
+    val trackSelector = DefaultTrackSelector(mainHandler, videoTrackSelectionFactory)
+    val loadControl: LoadControl = DefaultLoadControl()
+    val exoPlayer: SimpleExoPlayer by lazy {
+        ExoPlayerFactory.newSimpleInstance(context, trackSelector, loadControl)
+    }
     var key: Float = 0.0f
 
     init {
         exoPlayer.playWhenReady = true
+    }
+
+    fun sendChangePitchMessage(keyDifference: Int) {
+        // ここでキー変えてる まじ大事なところ
+        key += keyDifference
+        val pitchFreq = generatePitchFrequency(key)
+        val playbackParams = PlaybackParams().apply {
+            pitch = pitchFreq
+            speed = 1.0f
+        }
+        exoPlayer.playbackParams = playbackParams
+    }
+
+    fun generatePitchFrequency(key: Float): Float {
+        return Math.pow(2.0, key.toDouble() / 12).toFloat()
+    }
+
+    fun playSong(songId: Long) {
+
+        // Produces DataSource instances through which media data is loaded.
+        val dataSourceFactory = DefaultDataSourceFactory(context,
+                Util.getUserAgent(context, context.getString(R.string.app_name)), defaultBandwidthMeter);
+        // Produces Extractor instances for parsing the media data.
+        val extractorsFactory = DefaultExtractorsFactory()
+        val trackUri = ContentUris.withAppendedId(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, songId)
+        // This is the MediaSource representing the media to be played.
+        val audioSource = ExtractorMediaSource(trackUri, dataSourceFactory, extractorsFactory, null, null)
+        // Prepare the player with the source.
+        exoPlayer.prepare(audioSource)
+    }
+
+    fun setPlayerView(playerView: SimpleExoPlayerView?) {
+        playerView!!.player = exoPlayer
     }
 
     override fun onPlayerError(error: ExoPlaybackException?) {
@@ -33,51 +78,23 @@ class Player(val context: Context) : ExoPlayer.Listener {
         throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun onPlayWhenReadyCommitted() {
+    override fun onLoadingChanged(isLoading: Boolean) {
         throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    fun sendChangePitchMessage(keyDifference: Int) {
-        // ここでキー変えてる まじ大事なところ
-        key += keyDifference
-        val pitchFreq = generatePitchFrequency(key)
-        val playbackParam = PlaybackParams().apply {
-            pitch = pitchFreq
-            speed = 1.0f
-        }
-        exoPlayer.sendMessage(audioRenderer, MediaCodecAudioTrackRenderer.MSG_SET_PLAYBACK_PARAMS, playbackParam)
+    override fun onPositionDiscontinuity() {
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    fun generatePitchFrequency(key: Float): Float {
-        return Math.pow(2.0, key.toDouble() / 12).toFloat()
+    override fun onTimelineChanged(timeline: Timeline?, manifest: Any?) {
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    fun playSong(songId: Long) {
-        val allocator = DefaultAllocator(BUFFER_SEGMENT_SIZE)
-        val trackUri = ContentUris.withAppendedId(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, songId)
-
-        val dataSource = DefaultUriDataSource(context, "userAgent")
-
-        val sampleSource = ExtractorSampleSource(trackUri, dataSource, allocator,
-                BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE)
-
-        val videoRenderer = MediaCodecVideoTrackRenderer(context, sampleSource,
-                MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT)
-
-        audioRenderer = MediaCodecAudioTrackRenderer(sampleSource, MediaCodecSelector.DEFAULT)
-
-        val rendererArray = arrayOf<TrackRenderer>(videoRenderer, audioRenderer!!)
-
-        exoPlayer.prepare(*rendererArray)
-        exoPlayer.sendMessage(audioRenderer, MediaCodecAudioTrackRenderer.MSG_SET_PLAYBACK_PARAMS, null)
+    override fun onTrackSelectionsChanged(trackSelections: TrackSelections<out MappingTrackSelector.MappedTrackInfo>?) {
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    fun start() {
-        exoPlayer.playWhenReady = true
-    }
-
-    fun stop() {
-        exoPlayer.playWhenReady = false
+    override fun onVisibilityChange(visibility: Int) {
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

@@ -8,10 +8,9 @@ import android.support.v7.app.AppCompatActivity
 import com.example.yoshida_makoto.kotlintest.Player
 import com.example.yoshida_makoto.kotlintest.R
 import com.example.yoshida_makoto.kotlintest.databinding.PlayerActivityBinding
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 
 class PlayerActivity : AppCompatActivity() {
-    val player: Player = Player(this)
-
     fun createIntent(context: Context, songId: Long): Intent {
         intent = Intent(context, PlayerActivity::class.java)
         intent.putExtra("song_id", songId)
@@ -22,11 +21,13 @@ class PlayerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.player_activity)
 
+        val player: Player = Player(this)
         val binding = DataBindingUtil.setContentView<PlayerActivityBinding>(this, R.layout.player_activity);
         binding.pitchDown.setOnClickListener { player.sendChangePitchMessage(-1) }
         binding.pitchUp.setOnClickListener { player.sendChangePitchMessage(1) }
-        binding.start.setOnClickListener { player.start() }
-        binding.stop.setOnClickListener { player.stop() }
+        player.setPlayerView(binding.playerView)
+        binding.playerView.controllerShowTimeoutMs = -1
+        binding.playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH)
         val songId = intent.getLongExtra("song_id", 0)
 
         player.playSong(songId)

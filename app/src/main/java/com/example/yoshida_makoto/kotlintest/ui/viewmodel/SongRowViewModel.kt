@@ -8,8 +8,8 @@ import org.greenrobot.eventbus.EventBus
 /**
  * Created by yoshida_makoto on 2016/09/07.
  */
-class ItemRowViewModel(val song: Song) {
-    var clickListener: View.OnClickListener = View.OnClickListener {
+class SongRowViewModel(val song: Song) {
+    var songClickListener: View.OnClickListener = View.OnClickListener {
         EventBus.getDefault().post(ClickSongEvent(song.id))
     }
 

@@ -19,18 +19,18 @@ import com.example.yoshida_makoto.kotlintest.entity.Song
 import com.example.yoshida_makoto.kotlintest.events.ClickSongEvent
 import com.example.yoshida_makoto.kotlintest.events.TransitToDetailEvent
 import com.example.yoshida_makoto.kotlintest.ui.adapter.SongListAdapter
+import com.example.yoshida_makoto.kotlintest.ui.decoration.DividerItemDecoration
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
 class MainActivity : AppCompatActivity() {
-    private val binding: ActivityMainBinding by lazy { DataBindingUtil.setContentView<ActivityMainBinding>(this, activity_main) }
+    lateinit private var binding: ActivityMainBinding
     private val permissionCheck by lazy { ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) }
     private val MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1
 
     override fun onCreate(@Nullable savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        setContentView(activity_main)
+        binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, activity_main)
     }
 
     override fun onStart() {
@@ -56,6 +56,7 @@ class MainActivity : AppCompatActivity() {
         val adapter = SongListAdapter(this, songList)
         songList.addOnListChangedCallback(ObservableListCallback(adapter))
         binding.recyclerView.adapter = adapter
+        binding.recyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST))
     }
 
     fun getSongList(): ObservableArrayList<Song> {

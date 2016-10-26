@@ -12,7 +12,7 @@
             android:id="@+id/key_controller"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true"
             android:layout_gravity="bottom"
             android:background="@color/light_gray"
             android:orientation="horizontal">
@@ -41,35 +41,11 @@
                       android:textSize="30sp"/>
         </LinearLayout>
 
-        <LinearLayout
+        <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+            android:id="@+id/player_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@id/key_controller"
-            android:background="@color/light_gray">
-
-            <TextView android:id="@+id/stop"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:layout_weight="1"
-                      android:gravity="center"
-                      android:paddingLeft="4dp"
-                      android:paddingRight="4dp"
-                      android:text="stop"
-                      android:textColor="@color/black"
-                      android:textSize="30sp"/>
-
-            <TextView android:id="@+id/start"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:layout_weight="1"
-                      android:gravity="center"
-                      android:paddingLeft="4dp"
-                      android:paddingRight="4dp"
-                      android:text="start"
-                      android:textColor="@color/black"
-                      android:textSize="30sp"/>
-
-        </LinearLayout>
+            android:layout_height="200dp"
+            android:layout_alignParentBottom="true"/>
 
     </RelativeLayout>
 </layout>

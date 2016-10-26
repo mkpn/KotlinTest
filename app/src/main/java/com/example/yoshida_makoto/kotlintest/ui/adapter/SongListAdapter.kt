@@ -5,10 +5,9 @@ import android.databinding.ObservableArrayList
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.example.yoshida_makoto.kotlintest.ui.adapter.MyListAdapter
 import com.example.yoshida_makoto.kotlintest.databinding.ItemRowBinding
 import com.example.yoshida_makoto.kotlintest.entity.Song
-import com.example.yoshida_makoto.kotlintest.ui.viewmodel.ItemRowViewModel
+import com.example.yoshida_makoto.kotlintest.ui.viewmodel.SongRowViewModel
 
 /**
  * Created by yoshida_makoto on 2016/09/06.
@@ -20,7 +19,7 @@ class SongListAdapter(val context: Context, val songList: ObservableArrayList<So
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
         val binding = (holder as ContentViewHolder).binding
         val item = dataList.get(position)
-        val vm = ItemRowViewModel(item)
+        val vm = SongRowViewModel(item)
         binding.vm = vm
     }
 

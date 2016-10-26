@@ -5,38 +5,35 @@
 
     <data>
 
-        <import type="com.example.yoshida_makoto.kotlintest.ui.viewmodel.ItemRowViewModel"/>
+        <import type="com.example.yoshida_makoto.kotlintest.ui.viewmodel.SongRowViewModel"/>
 
         <variable
             name="vm"
-            type="ItemRowViewModel"/>
+            type="SongRowViewModel"/>
     </data>
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/song_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:onClickListener="@{vm.songClickListener}"
+        android:padding="@dimen/list_item_padding">
 
         <TextView
+            android:id="@+id/song_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClickListener="@{vm.clickListener}"
-            android:text="@{vm.songIdString}"
-            tools:text="text"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClickListener="@{vm.clickListener}"
             android:text="@{vm.song.title}"
+            android:textSize="@dimen/big_text"
             tools:text="text"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClickListener="@{vm.clickListener}"
+            android:layout_below="@+id/song_title"
             android:text="@{vm.song.artist}"
             tools:text="text"/>
 
-    </LinearLayout>
+    </RelativeLayout>
 </layout>
