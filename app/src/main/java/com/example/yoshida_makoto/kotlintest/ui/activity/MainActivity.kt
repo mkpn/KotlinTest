@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     @Subscribe
-    public fun onTransitToDetailEvent(event: TransitToDetailEvent) {
+    fun onTransitToDetailEvent(event: TransitToDetailEvent) {
         startActivity(Intent(this, DetailActivity::class.java))
     }
 
