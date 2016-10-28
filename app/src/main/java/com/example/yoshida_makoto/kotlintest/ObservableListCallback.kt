@@ -19,6 +19,11 @@ class ObservableListCallback<T : ObservableList<*>>(private val adapter: Recycle
     }
 
     override fun onItemRangeRemoved(p0: T, p1: Int, p2: Int) {
+        if(adapter.itemCount == 0) {
+            // 全表示→全消し　みたいなとき、notifyDataSetChange()でビューを全部消さないと、めちゃくちゃ描画コストかかるっぽい。。。
+            adapter.notifyDataSetChanged()
+            return
+        }
         adapter.notifyItemRangeRemoved(p1, p2)
     }
 

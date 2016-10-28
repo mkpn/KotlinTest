@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">KotlinTest</string>
+    <string name="action_search">検索</string>
 </resources>
