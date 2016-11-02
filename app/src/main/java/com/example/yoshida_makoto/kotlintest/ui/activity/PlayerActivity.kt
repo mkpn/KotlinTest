@@ -15,6 +15,7 @@ import javax.inject.Inject
 class PlayerActivity : AppCompatActivity() {
     @Inject
     lateinit var player: Player
+
     fun createIntent(context: Context, songId: Long): Intent {
         intent = Intent(context, PlayerActivity::class.java)
         intent.putExtra("song_id", songId)
@@ -35,5 +36,7 @@ class PlayerActivity : AppCompatActivity() {
         val songId = intent.getLongExtra("song_id", 0)
 
         player.playSong(songId)
+
+        binding.key = player.key
     }
 }
