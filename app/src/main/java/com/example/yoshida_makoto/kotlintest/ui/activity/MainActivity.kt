@@ -10,28 +10,26 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SearchView
 import android.view.Menu
+import com.example.yoshida_makoto.kotlintest.Messenger
 import com.example.yoshida_makoto.kotlintest.MyApplication
 import com.example.yoshida_makoto.kotlintest.R
 import com.example.yoshida_makoto.kotlintest.databinding.ActivityMainBinding
 import com.example.yoshida_makoto.kotlintest.messages.ClickMusicMessage
-import com.example.yoshida_makoto.kotlintest.repository.MusicRepository
-import com.example.yoshida_makoto.kotlintest.ui.adapter.MusicListAdapter
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MainViewModel
 import rx.android.schedulers.AndroidSchedulers
 import rx.subscriptions.CompositeSubscription
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
-    @Inject
-    lateinit var musicRepository: MusicRepository
-
     val subscriptions = CompositeSubscription()
     lateinit private var binding: ActivityMainBinding
     private val permissionCheck by lazy { ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) }
     private val MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1
-    lateinit private var adapter: MusicListAdapter
 
-    val mainVm by lazy { MainViewModel((application as MyApplication).applicationComponent) }
+    @Inject
+    lateinit var mainVm: MainViewModel
+    @Inject
+    lateinit var messenger: Messenger
 
     override fun onCreate(@Nullable savedInstanceState: Bundle?) {
         (application as MyApplication).applicationComponent.inject(this)
@@ -39,11 +37,10 @@ class MainActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
 
         subscriptions.add(
-                mainVm.messenger
-                        .register(ClickMusicMessage::class.java)
+                messenger.register(ClickMusicMessage::class.java)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({ message ->
-                            PlayerActivity().createIntent(this, message.songId)
+                            startActivity(PlayerActivity.createIntent(this, message.songId))
                         })
         )
     }
@@ -92,3 +89,5 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 }
+
+

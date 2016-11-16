@@ -17,6 +17,7 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import rx.subjects.PublishSubject
 
 /**
  * Created by yoshida_makoto on 2016/10/25.
@@ -27,6 +28,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
 
     private val TAG = "Player"
 
+    val errorObservable: PublishSubject<String> = PublishSubject.create()
     val mainHandler = Handler()
     val defaultBandwidthMeter = DefaultBandwidthMeter()
     val videoTrackSelectionFactory = AdaptiveVideoTrackSelection.Factory(defaultBandwidthMeter)
@@ -92,6 +94,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     override fun onPlayerError(error: ExoPlaybackException?) {
+        errorObservable.onNext("エラー！")
         throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

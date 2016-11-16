@@ -1,26 +1,16 @@
 package com.example.yoshida_makoto.kotlintest.ui.viewmodel
 
 import android.support.v7.widget.SearchView
-import com.example.yoshida_makoto.kotlintest.Messenger
-import com.example.yoshida_makoto.kotlintest.dagger.AppComponent
 import com.example.yoshida_makoto.kotlintest.repository.MusicRepository
-import javax.inject.Inject
 
 /**
  * Created by yoshida_makoto on 2016/11/14.
  */
 // TODO permissionCheckerもらわないとだめかも
-class MainViewModel (applicationComponent: AppComponent){
+class MainViewModel(musicRepository: MusicRepository) {
     init {
-        applicationComponent.inject(this)
-        // 音楽リストの初期化
-        musicRepository.findSongListObservable("")
+        musicRepository.findSongListObservable("") // 音楽リストの初期化
     }
-
-    val messenger = Messenger()
-    @Inject
-    lateinit var musicRepository: MusicRepository
-
     val musics = musicRepository.musics
 
     val textChangeListener = object : SearchView.OnQueryTextListener {

@@ -16,16 +16,17 @@ class PlayerActivity : AppCompatActivity() {
     @Inject
     lateinit var player: Player
 
-    fun createIntent(context: Context, songId: Long): Intent {
-        intent = Intent(context, PlayerActivity::class.java)
-        intent.putExtra("song_id", songId)
-        return intent
+    companion object {
+        fun createIntent(context: Context, songId: Long): Intent {
+            val intent = Intent(context, PlayerActivity::class.java)
+            intent.putExtra("song_id", songId)
+            return intent
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.player_activity)
-
         (application as MyApplication).applicationComponent.inject(this)
         val binding = DataBindingUtil.setContentView<PlayerActivityBinding>(this, R.layout.player_activity);
         binding.pitchDown.setOnClickListener { player.sendChangePitchMessage(-1) }
