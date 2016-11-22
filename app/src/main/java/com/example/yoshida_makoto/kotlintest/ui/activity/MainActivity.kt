@@ -36,18 +36,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
 
-        subscriptions.add(
-                messenger.register(ClickMusicMessage::class.java)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({ message ->
-                            startActivity(PlayerActivity.createIntent(this, message.songId))
-                        })
+        subscriptions.add(messenger.register(ClickMusicMessage::class.java)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ message ->
+                    startActivity(PlayerActivity.createIntent(this, message.songId))
+                })
         )
     }
 
     override fun onStart() {
         super.onStart()
-
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
             binding.vm = mainVm
         } else {

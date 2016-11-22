@@ -1,21 +1,19 @@
 package com.example.yoshida_makoto.kotlintest.entity
 
-import android.view.View
-import com.example.yoshida_makoto.kotlintest.events.ClickMusicEvent
-import org.greenrobot.eventbus.EventBus
+import io.realm.RealmObject
+import io.realm.annotations.PrimaryKey
 
 /**
+ * RealmObjectを継承したクラスでvalは使えないぽい？open classじゃないとダメっぽい感じもある
  * Created by yoshida_makoto on 2016/09/21.
  */
 //TODO 曲ごとにメモが残せてもいいかも
-class Music(val id: Long, val title: String, val artist: String) {
-
-    fun isContains(query: String): Boolean {
+open class Music(
+        @PrimaryKey var id: Long = 0,
+        var title: String = "",
+        var artist: String = "",
+        var pitch: Long = 0) : RealmObject() {
+    fun isContainsString(query: String): Boolean {
         return title.contains(query) || artist.contains(query)
-    }
-
-    var musicClickListener: View.OnClickListener = View.OnClickListener {
-        EventBus.getDefault().post(ClickMusicEvent(id))
-
     }
 }

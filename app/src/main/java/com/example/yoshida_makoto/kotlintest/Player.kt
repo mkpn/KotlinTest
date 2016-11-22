@@ -1,23 +1,23 @@
 package com.example.yoshida_makoto.kotlintest
 
-import android.content.ContentUris
 import android.content.Context
-import android.databinding.Observable
 import android.databinding.ObservableField
 import android.media.PlaybackParams
 import android.os.Handler
-import android.provider.MediaStore
 import android.util.Log
+import com.example.yoshida_makoto.kotlintest.dagger.Injector
+import com.example.yoshida_makoto.kotlintest.entity.Music
+import com.example.yoshida_makoto.kotlintest.messages.ChangeMusicPitchMessage
+import com.example.yoshida_makoto.kotlintest.query.MusicsQuery
 import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
-import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.trackselection.*
 import com.google.android.exoplayer2.ui.PlaybackControlView
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
+import rx.android.schedulers.AndroidSchedulers
 import rx.subjects.PublishSubject
+import rx.subscriptions.CompositeSubscription
+import javax.inject.Inject
 
 /**
  * Created by yoshida_makoto on 2016/10/25.
@@ -27,6 +27,10 @@ class Player(val context: Context) : ExoPlayer.EventListener,
         PlaybackControlView.VisibilityListener {
 
     private val TAG = "Player"
+    @Inject
+    lateinit var messenger: Messenger
+    val musicsQuery = MusicsQuery()
+    val subscriptions = CompositeSubscription()
 
     val errorObservable: PublishSubject<String> = PublishSubject.create()
     val mainHandler = Handler()
@@ -39,41 +43,33 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
     var key: ObservableField<Float> = ObservableField(0.0f)
 
+    lateinit var music: Music
+
     init {
+        Injector.component.inject(this)
         exoPlayer.playWhenReady = true
-
-        key.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                Log.d("デバッグ", "onProperty Changed!!!!!")
-            }
-        })
-    }
-
-    fun sendChangePitchMessage(keyDifference: Int) {
-        // ここでキー変えてる まじ大事なところ
-        key.set(key.get() + keyDifference)
-        val pitchFreq = generatePitchFrequency(key.get())
-        val playbackParams = PlaybackParams().apply {
-            pitch = pitchFreq
-            speed = 1.0f
-        }
-        exoPlayer.playbackParams = playbackParams
+        subscriptions.add(messenger
+                .register(ChangeMusicPitchMessage::class.java)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ message ->
+                    val pitchFreq = generatePitchFrequency(message.pitch)
+                    val playbackParams = PlaybackParams().apply {
+                        pitch = pitchFreq
+                        speed = 1.0f
+                    }
+                    exoPlayer.playbackParams = playbackParams
+                })
+        )
     }
 
     fun generatePitchFrequency(key: Float): Float {
         return Math.pow(2.0, key.toDouble() / 12).toFloat()
     }
 
-    fun playSong(songId: Long) {
-        // Produces DataSource instances through which media data is loaded.
-        val dataSourceFactory = DefaultDataSourceFactory(context,
-                Util.getUserAgent(context, context.getString(R.string.app_name)), defaultBandwidthMeter);
-        // Produces Extractor instances for parsing the media data.
-        val extractorsFactory = DefaultExtractorsFactory()
-        val trackUri = ContentUris.withAppendedId(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, songId)
-        // This is the MediaSource representing the media to be played.
-        val audioSource = ExtractorMediaSource(trackUri, dataSourceFactory, extractorsFactory, null, null)
+    fun playMusic(musicId: Long) {
+        // TODO 検討
+        this.music = musicsQuery.findMusic(musicId)!!
+        val audioSource = exoPlayer.createAudioSource(context, musicId)
         // Prepare the player with the source.
         exoPlayer.prepare(audioSource)
 
@@ -87,6 +83,10 @@ class Player(val context: Context) : ExoPlayer.EventListener,
             speed = 1.0f
         }
         exoPlayer.playbackParams = playbackParams
+    }
+
+    fun changePitch(i: Int) {
+
     }
 
     fun setPlayerView(playerView: SimpleExoPlayerView?) {

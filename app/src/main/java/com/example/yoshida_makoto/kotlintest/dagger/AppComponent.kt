@@ -1,6 +1,8 @@
 package com.example.yoshida_makoto.kotlintest.dagger
 
-import com.example.yoshida_makoto.kotlintest.repository.MusicRepository
+import com.example.yoshida_makoto.kotlintest.Player
+import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
+import com.example.yoshida_makoto.kotlintest.query.MusicsQuery
 import com.example.yoshida_makoto.kotlintest.ui.activity.MainActivity
 import com.example.yoshida_makoto.kotlintest.ui.activity.PlayerActivity
 import com.example.yoshida_makoto.kotlintest.ui.adapter.MusicListAdapter
@@ -16,7 +18,9 @@ import javax.inject.Singleton
 interface AppComponent {
     fun inject(playerActivity: PlayerActivity)
     fun inject(mainActivity: MainActivity)
-    fun inject(musicRepository: MusicRepository)
     fun inject(vm: MainViewModel)
+    fun inject(player: Player)
     fun inject(adapter: MusicListAdapter)
+    fun inject(query: MusicsQuery)
+    fun inject(command: MusicsCommand)
 }
