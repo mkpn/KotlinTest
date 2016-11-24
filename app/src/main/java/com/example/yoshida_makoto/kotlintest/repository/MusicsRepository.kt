@@ -25,11 +25,11 @@ class MusicsRepository(val contentResolver: ContentResolver) {
         musics.clear()
     }
 
-    fun updateOrCreatePitch(musicId: Long, pitch: Long) {
+    fun updateOrCreatePitch(musicId: Long, key: Int) {
         Observable.fromIterable(musics)
                 .filter { music -> music.id.equals(musicId) }
                 .subscribe { music ->
-                    music.pitch = pitch
+                    music.key += key
                     realm.copyToRealmOrUpdate(music)
                 }
     }

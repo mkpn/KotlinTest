@@ -27,8 +27,8 @@ class MusicsCommand() {
         musicsRepository.successStream.subscribe { errorStream.onNext(MyError()) }
     }
 
-    fun updateOrCreatePitch(musicId: Long, pitch: Long) {
-        musicsRepository.updateOrCreatePitch(musicId, pitch)
+    fun updateOrCreatePitch(musicId: Long, key: Int) {
+        musicsRepository.updateOrCreatePitch(musicId, key)
     }
 
     fun searchMusic(query: String) {

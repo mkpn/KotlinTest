@@ -5,17 +5,15 @@ import android.databinding.ObservableField
 import android.media.PlaybackParams
 import android.os.Handler
 import android.util.Log
+import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
 import com.example.yoshida_makoto.kotlintest.dagger.Injector
 import com.example.yoshida_makoto.kotlintest.entity.Music
-import com.example.yoshida_makoto.kotlintest.messages.ChangeMusicPitchMessage
 import com.example.yoshida_makoto.kotlintest.query.MusicsQuery
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.trackselection.*
 import com.google.android.exoplayer2.ui.PlaybackControlView
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
@@ -29,8 +27,8 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     private val TAG = "Player"
     @Inject
     lateinit var messenger: Messenger
+    val musicsCommand = MusicsCommand()
     val musicsQuery = MusicsQuery()
-    val subscriptions = CompositeDisposable()
 
     val errorObservable: PublishSubject<String> = PublishSubject.create()
     val mainHandler = Handler()
@@ -48,27 +46,28 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     init {
         Injector.component.inject(this)
         exoPlayer.playWhenReady = true
-        subscriptions.add(messenger
-                .register(ChangeMusicPitchMessage::class.java)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ message ->
-                    val pitchFreq = generatePitchFrequency(message.pitch)
-                    val playbackParams = PlaybackParams().apply {
-                        pitch = pitchFreq
-                        speed = 1.0f
-                    }
-                    exoPlayer.playbackParams = playbackParams
-                })
-        )
     }
 
-    fun generatePitchFrequency(key: Float): Float {
-        return Math.pow(2.0, key.toDouble() / 12).toFloat()
+    fun generatePitchFrequency(key: Double): Float {
+        return Math.pow(2.0, key / 12).toFloat()
     }
 
     fun playMusic(musicId: Long) {
         // TODO 検討
         this.music = musicsQuery.findMusic(musicId)!!
+        Log.d("デバッグ", "music.key = ${music.key}")
+//        music.key.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+//            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+//                Log.d("デバッグ", "onPropertyChanged! music.key = ${music.key}")
+//                val pitchFreq = generatePitchFrequency(music.key.get().toDouble())
+//                val playbackParams = PlaybackParams().apply {
+//                    pitch = pitchFreq
+//                    speed = 1.0f
+//                }
+//                exoPlayer.playbackParams = playbackParams
+//            }
+//        })
+
         val audioSource = exoPlayer.createAudioSource(context, musicId)
         // Prepare the player with the source.
         exoPlayer.prepare(audioSource)
@@ -86,7 +85,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     fun changePitch(i: Int) {
-
+        musicsCommand.updateOrCreatePitch(music.id, i)
     }
 
     fun setPlayerView(playerView: SimpleExoPlayerView?) {
