@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.support.annotation.Nullable
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SearchView
 import android.view.Menu
@@ -18,8 +19,10 @@ import com.example.yoshida_makoto.kotlintest.messages.ClickMusicMessage
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MainViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import permissions.dispatcher.*
 import javax.inject.Inject
 
+@RuntimePermissions
 class MainActivity : AppCompatActivity() {
     val disposables = CompositeDisposable()
     lateinit private var binding: ActivityMainBinding
@@ -32,16 +35,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var messenger: Messenger
 
     override fun onCreate(@Nullable savedInstanceState: Bundle?) {
-        (application as MyApplication).applicationComponent.inject(this)
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
-
-        disposables.add(messenger.register(ClickMusicMessage::class.java)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ message ->
-                    startActivity(PlayerActivity.createIntent(this, message.songId))
-                })
-        )
+        MainActivityPermissionsDispatcher.initializeWithCheck(this)
     }
 
     override fun onStart() {
@@ -85,6 +80,38 @@ class MainActivity : AppCompatActivity() {
         val searchView = menu!!.findItem(R.id.action_search).actionView as SearchView
         searchView.setOnQueryTextListener(mainVm.textChangeListener)
         return true
+    }
+
+    @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+    fun initialize() {
+        (application as MyApplication).applicationComponent.inject(this)
+        binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
+
+        disposables.add(messenger.register(ClickMusicMessage::class.java)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ message ->
+                    startActivity(PlayerActivity.createIntent(this, message.songId))
+                })
+        )
+    }
+
+    @OnShowRationale(Manifest.permission.READ_EXTERNAL_STORAGE)
+    fun showBar(request: PermissionRequest) {
+        AlertDialog.Builder(this)
+                .setMessage("許可してちょ")
+                .setPositiveButton("許可しちゃう！", { dialog, button -> request.proceed() })
+                .setNegativeButton("ざけんな", { dialog, button -> request.cancel() })
+                .show()
+    }
+
+    @OnPermissionDenied(Manifest.permission.READ_EXTERNAL_STORAGE)
+    fun showHoge() {
+
+    }
+
+    @OnNeverAskAgain(Manifest.permission.READ_EXTERNAL_STORAGE)
+    fun showFuga() {
+
     }
 }
 

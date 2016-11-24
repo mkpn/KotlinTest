@@ -1,6 +1,7 @@
 package com.example.yoshida_makoto.kotlintest
 
 import android.content.Context
+import android.databinding.Observable
 import android.databinding.ObservableField
 import android.media.PlaybackParams
 import android.os.Handler
@@ -56,17 +57,19 @@ class Player(val context: Context) : ExoPlayer.EventListener,
         // TODO 検討
         this.music = musicsQuery.findMusic(musicId)!!
         Log.d("デバッグ", "music.key = ${music.key}")
-//        music.key.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
-//            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-//                Log.d("デバッグ", "onPropertyChanged! music.key = ${music.key}")
-//                val pitchFreq = generatePitchFrequency(music.key.get().toDouble())
-//                val playbackParams = PlaybackParams().apply {
-//                    pitch = pitchFreq
-//                    speed = 1.0f
-//                }
-//                exoPlayer.playbackParams = playbackParams
-//            }
-//        })
+        Log.d("デバッグ", "music.observableKey = ${music.observableKey}")
+        music.observableKey.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                Log.d("デバッグ", "onPropertyChanged! music.key = ${music.key}")
+                Log.d("デバッグ", "onPropertyChanged! music.observableKey = ${music.observableKey}")
+                val pitchFreq = generatePitchFrequency(music.observableKey.get().toDouble())
+                val playbackParams = PlaybackParams().apply {
+                    pitch = pitchFreq
+                    speed = 1.0f
+                }
+                exoPlayer.playbackParams = playbackParams
+            }
+        })
 
         val audioSource = exoPlayer.createAudioSource(context, musicId)
         // Prepare the player with the source.

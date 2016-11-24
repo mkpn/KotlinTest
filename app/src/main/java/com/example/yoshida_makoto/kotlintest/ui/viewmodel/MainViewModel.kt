@@ -22,7 +22,7 @@ class MainViewModel() {
     init {
         musicsCommand.successStream.subscribe { successStream.onNext(MySuccess()) }
         musicsCommand.errorStream.subscribe { errorStream.onNext(MyError()) }
-        musicsCommand.findAllMusic()
+        findAllMusic()
     }
 
     val textChangeListener = object : SearchView.OnQueryTextListener {
@@ -34,5 +34,9 @@ class MainViewModel() {
             musicsCommand.searchMusic(query)
             return false
         }
+    }
+
+    fun findAllMusic() {
+        musicsCommand.findAllMusic()
     }
 }
