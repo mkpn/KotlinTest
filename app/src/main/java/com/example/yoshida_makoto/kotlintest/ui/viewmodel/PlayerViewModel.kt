@@ -1,7 +1,7 @@
 package com.example.yoshida_makoto.kotlintest.ui.viewmodel
 
 import android.view.View
-import rx.subjects.PublishSubject
+import io.reactivex.subjects.PublishSubject
 
 /**
  * Created by yoshida_makoto on 2016/11/18.

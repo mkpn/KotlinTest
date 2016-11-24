@@ -11,7 +11,7 @@ import com.example.yoshida_makoto.kotlintest.databinding.MusicRowBinding
 import com.example.yoshida_makoto.kotlintest.entity.Music
 import com.example.yoshida_makoto.kotlintest.messages.ClickMusicMessage
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MusicRowViewModel
-import rx.subscriptions.CompositeSubscription
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 /**
@@ -22,7 +22,7 @@ class MusicListAdapter(val context: Context, musicList: ObservableArrayList<Musi
         (context.applicationContext as MyApplication).applicationComponent.inject(this)
     }
 
-    val subscriptions = CompositeSubscription()
+    val desposables = CompositeDisposable()
 
     @Inject
     lateinit var messenger: Messenger
@@ -36,7 +36,7 @@ class MusicListAdapter(val context: Context, musicList: ObservableArrayList<Musi
         val music = dataList.get(position)
         vm = MusicRowViewModel(music)
         binding.vm = vm
-        subscriptions.add(vm.musicClickObservable.subscribe { musicId ->
+        desposables.add(vm.musicClickObservable.subscribe { musicId ->
             messenger.send(ClickMusicMessage(musicId)) })
     }
 

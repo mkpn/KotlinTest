@@ -14,9 +14,9 @@ import com.google.android.exoplayer2.trackselection.*
 import com.google.android.exoplayer2.ui.PlaybackControlView
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import rx.android.schedulers.AndroidSchedulers
-import rx.subjects.PublishSubject
-import rx.subscriptions.CompositeSubscription
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
 /**
@@ -30,7 +30,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     @Inject
     lateinit var messenger: Messenger
     val musicsQuery = MusicsQuery()
-    val subscriptions = CompositeSubscription()
+    val subscriptions = CompositeDisposable()
 
     val errorObservable: PublishSubject<String> = PublishSubject.create()
     val mainHandler = Handler()

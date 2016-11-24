@@ -5,7 +5,7 @@ import com.example.yoshida_makoto.kotlintest.MyError
 import com.example.yoshida_makoto.kotlintest.MySuccess
 import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
 import com.example.yoshida_makoto.kotlintest.query.MusicsQuery
-import rx.subjects.BehaviorSubject
+import io.reactivex.subjects.BehaviorSubject
 
 /**
  * Created by yoshida_makoto on 2016/11/14.
@@ -31,7 +31,6 @@ class MainViewModel() {
         }
 
         override fun onQueryTextChange(query: String): Boolean {
-//            musicsRepository.clearMusic()
             musicsCommand.searchMusic(query)
             return false
         }

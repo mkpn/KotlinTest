@@ -6,10 +6,9 @@ import android.provider.MediaStore
 import com.example.yoshida_makoto.kotlintest.MyError
 import com.example.yoshida_makoto.kotlintest.MySuccess
 import com.example.yoshida_makoto.kotlintest.entity.Music
+import io.reactivex.Observable
+import io.reactivex.subjects.BehaviorSubject
 import io.realm.Realm
-import rx.Emitter
-import rx.Observable
-import rx.subjects.BehaviorSubject
 
 /**
  * Created by yoshida_makoto on 2016/11/11.
@@ -27,7 +26,7 @@ class MusicsRepository(val contentResolver: ContentResolver) {
     }
 
     fun updateOrCreatePitch(musicId: Long, pitch: Long) {
-        Observable.from(musics)
+        Observable.fromIterable(musics)
                 .filter { music -> music.id.equals(musicId) }
                 .subscribe { music ->
                     music.pitch = pitch
@@ -36,29 +35,28 @@ class MusicsRepository(val contentResolver: ContentResolver) {
     }
 
     fun findSongListObservable(query: String) {
-        Observable.fromEmitter<ObservableArrayList<Music>>(
-                { emitter ->
-                    val musicResolver = contentResolver
-                    val musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-                    val musicCursor = musicResolver.query(musicUri, null, null, null, null)
-                    if (musicCursor != null && musicCursor.moveToFirst()) {
-                        val titleColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-                        val idColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID)
-                        val artistColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
-                        do {
-                            val thisId = musicCursor.getLong(idColumn)
-                            val thisTitle = musicCursor.getString(titleColumn)
-                            val thisArtist: String = musicCursor.getString(artistColumn) ?: "no data"
-                            val music = Music(thisId, thisTitle, thisArtist, 0)
-                            if (query.isEmpty() || music.isContainsString(query)) musics.add(music)
-                        } while (musicCursor.moveToNext())
-                        musicCursor.close()
-                        emitter.onNext(musics)
-                        emitter.onCompleted()
-                    } else {
-                        emitter.onError(RuntimeException())
-                    }
-                }, Emitter.BackpressureMode.LATEST)
+        Observable.create<ObservableArrayList<Music>> { emitter ->
+            val musicResolver = contentResolver
+            val musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            val musicCursor = musicResolver.query(musicUri, null, null, null, null)
+            if (musicCursor != null && musicCursor.moveToFirst()) {
+                val titleColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
+                val idColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID)
+                val artistColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
+                do {
+                    val thisId = musicCursor.getLong(idColumn)
+                    val thisTitle = musicCursor.getString(titleColumn)
+                    val thisArtist: String = musicCursor.getString(artistColumn) ?: "no data"
+                    val music = Music(thisId, thisTitle, thisArtist, 0)
+                    if (query.isEmpty() || music.isContainsString(query)) musics.add(music)
+                } while (musicCursor.moveToNext())
+                musicCursor.close()
+                emitter.onNext(musics)
+                emitter.onComplete()
+            } else {
+                emitter.onError(RuntimeException())
+            }
+        }
                 .doOnError { throwable -> errorStream.onNext(MyError()) }
                 .subscribe { musics -> successStream.onNext(MySuccess()) }
     }

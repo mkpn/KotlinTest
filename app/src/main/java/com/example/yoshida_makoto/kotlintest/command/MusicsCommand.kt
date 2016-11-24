@@ -4,8 +4,7 @@ import com.example.yoshida_makoto.kotlintest.MyError
 import com.example.yoshida_makoto.kotlintest.MySuccess
 import com.example.yoshida_makoto.kotlintest.dagger.Injector
 import com.example.yoshida_makoto.kotlintest.repository.MusicsRepository
-import rx.subjects.BehaviorSubject
-import rx.subscriptions.CompositeSubscription
+import io.reactivex.subjects.BehaviorSubject
 import javax.inject.Inject
 
 /**
@@ -20,13 +19,12 @@ class MusicsCommand() {
     @Inject
     lateinit var musicsRepository: MusicsRepository
 
-    val subscriptions = CompositeSubscription()
     val successStream = BehaviorSubject.create<MySuccess>()
     val errorStream = BehaviorSubject.create<MyError>()
 
     init {
-        subscriptions.add(musicsRepository.successStream.subscribe { successStream.onNext(MySuccess()) })
-        subscriptions.add(musicsRepository.successStream.subscribe { errorStream.onNext(MyError()) })
+        musicsRepository.successStream.subscribe { successStream.onNext(MySuccess()) }
+        musicsRepository.successStream.subscribe { errorStream.onNext(MyError()) }
     }
 
     fun updateOrCreatePitch(musicId: Long, pitch: Long) {

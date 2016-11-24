@@ -11,14 +11,14 @@ import com.example.yoshida_makoto.kotlintest.R
 import com.example.yoshida_makoto.kotlintest.databinding.PlayerActivityBinding
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.PlayerViewModel
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
-import rx.subscriptions.CompositeSubscription
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 class PlayerActivity : AppCompatActivity() {
     @Inject
     lateinit var player: Player
 
-    val subscriptions = CompositeSubscription()
+    val disposables = CompositeDisposable()
 
     companion object {
         fun createIntent(context: Context, songId: Long): Intent {
@@ -34,7 +34,7 @@ class PlayerActivity : AppCompatActivity() {
         (application as MyApplication).applicationComponent.inject(this)
         val binding = DataBindingUtil.setContentView<PlayerActivityBinding>(this, R.layout.player_activity)
         val vm = PlayerViewModel()
-        subscriptions.add(vm.pitchChangeObservable.subscribe { pitchDifference -> player.changePitch(pitchDifference) })
+        disposables.add(vm.pitchChangeObservable.subscribe { pitchDifference -> player.changePitch(pitchDifference) })
 
         binding.pitchDown.setOnClickListener { player.changePitch(-1) }
         binding.pitchUp.setOnClickListener { player.changePitch(1) }

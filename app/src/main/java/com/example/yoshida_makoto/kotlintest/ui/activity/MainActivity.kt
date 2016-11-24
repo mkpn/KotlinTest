@@ -16,12 +16,12 @@ import com.example.yoshida_makoto.kotlintest.R
 import com.example.yoshida_makoto.kotlintest.databinding.ActivityMainBinding
 import com.example.yoshida_makoto.kotlintest.messages.ClickMusicMessage
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MainViewModel
-import rx.android.schedulers.AndroidSchedulers
-import rx.subscriptions.CompositeSubscription
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
-    val subscriptions = CompositeSubscription()
+    val disposables = CompositeDisposable()
     lateinit private var binding: ActivityMainBinding
     private val permissionCheck by lazy { ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) }
     private val MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1
@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
 
-        subscriptions.add(messenger.register(ClickMusicMessage::class.java)
+        disposables.add(messenger.register(ClickMusicMessage::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ message ->
                     startActivity(PlayerActivity.createIntent(this, message.songId))

@@ -1,15 +1,14 @@
 package com.example.yoshida_makoto.kotlintest
 
 import com.example.yoshida_makoto.kotlintest.messages.Message
-import rx.Observable
-import rx.subjects.PublishSubject
-import rx.subjects.SerializedSubject
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 
 /**
  * Created by yoshida_makoto on 2016/11/14.
  */
 class Messenger {
-    private val bus = SerializedSubject<Message, Message>(PublishSubject.create<Message>())
+    private val bus = PublishSubject.create<Message>()
 
     fun send(message: Message) {
         bus.onNext(message)

@@ -2,7 +2,7 @@ package com.example.yoshida_makoto.kotlintest.ui.viewmodel
 
 import android.view.View
 import com.example.yoshida_makoto.kotlintest.entity.Music
-import rx.subjects.PublishSubject
+import io.reactivex.subjects.PublishSubject
 
 
 
