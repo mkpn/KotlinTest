@@ -4,7 +4,7 @@ import android.support.v7.widget.SearchView
 import com.example.yoshida_makoto.kotlintest.MyError
 import com.example.yoshida_makoto.kotlintest.MySuccess
 import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
-import com.example.yoshida_makoto.kotlintest.query.MusicsQuery
+import com.example.yoshida_makoto.kotlintest.query.SearchMusicsByStringQuery
 import io.reactivex.subjects.BehaviorSubject
 
 /**
@@ -12,9 +12,9 @@ import io.reactivex.subjects.BehaviorSubject
  */
 // TODO permissionCheckerもらわないとだめかも
 class MainViewModel() {
-    val musicsQuery = MusicsQuery()
     val musicsCommand = MusicsCommand()
-    val musics = musicsQuery.readMusics()
+    val searchMusicsByStringQuery = SearchMusicsByStringQuery()
+    val musics = searchMusicsByStringQuery.searchMusicsByString("") // 初期化
 
     val successStream = BehaviorSubject.create<MySuccess>()
     val errorStream = BehaviorSubject.create<MyError>()
@@ -22,7 +22,6 @@ class MainViewModel() {
     init {
         musicsCommand.successStream.subscribe { successStream.onNext(MySuccess()) }
         musicsCommand.errorStream.subscribe { errorStream.onNext(MyError()) }
-        findAllMusic()
     }
 
     val textChangeListener = object : SearchView.OnQueryTextListener {
@@ -31,12 +30,8 @@ class MainViewModel() {
         }
 
         override fun onQueryTextChange(query: String): Boolean {
-            musicsCommand.searchMusic(query)
+            searchMusicsByStringQuery.searchMusicsByString(query)
             return false
         }
-    }
-
-    fun findAllMusic() {
-        musicsCommand.findAllMusic()
     }
 }

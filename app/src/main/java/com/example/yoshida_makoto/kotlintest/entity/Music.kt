@@ -14,8 +14,23 @@ open class Music(
         @PrimaryKey var id: Long = 0,
         var title: String = "",
         var artist: String = "",
-        var key: Int = 0,
-        @Ignore var observableKey: ObservableField<Int> = ObservableField(key)) : RealmObject() {
+        key: Int,
+        @Ignore var observableKey: ObservableField<Int> = ObservableField(0)) : RealmObject() {
+
+    constructor() : this(0, "", "", 0, ObservableField()) {
+    }
+
+    var key: Int = 0
+        get() = field
+        set(value) {
+            field = value
+            observableKey.set(value)
+        }
+
+    init {
+        this.key = key
+    }
+
     fun isContainsString(query: String): Boolean {
         return title.contains(query) || artist.contains(query)
     }

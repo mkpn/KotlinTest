@@ -2,19 +2,19 @@ package com.example.yoshida_makoto.kotlintest
 
 import android.content.Context
 import android.databinding.Observable
-import android.databinding.ObservableField
 import android.media.PlaybackParams
 import android.os.Handler
 import android.util.Log
 import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
 import com.example.yoshida_makoto.kotlintest.dagger.Injector
 import com.example.yoshida_makoto.kotlintest.entity.Music
-import com.example.yoshida_makoto.kotlintest.query.MusicsQuery
+import com.example.yoshida_makoto.kotlintest.query.FindMusicByIdQuery
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.trackselection.*
 import com.google.android.exoplayer2.ui.PlaybackControlView
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
@@ -29,7 +29,8 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     @Inject
     lateinit var messenger: Messenger
     val musicsCommand = MusicsCommand()
-    val musicsQuery = MusicsQuery()
+    val findMusicByIdQuery = FindMusicByIdQuery()
+    val musicLoadedStream = BehaviorSubject.create<Music>()
 
     val errorObservable: PublishSubject<String> = PublishSubject.create()
     val mainHandler = Handler()
@@ -40,8 +41,6 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     val exoPlayer: SimpleExoPlayer by lazy {
         ExoPlayerFactory.newSimpleInstance(context, trackSelector, loadControl)
     }
-    var key: ObservableField<Float> = ObservableField(0.0f)
-
     lateinit var music: Music
 
     init {
@@ -54,37 +53,31 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     fun playMusic(musicId: Long) {
-        // TODO 検討
-        this.music = musicsQuery.findMusic(musicId)!!
-        Log.d("デバッグ", "music.key = ${music.key}")
-        Log.d("デバッグ", "music.observableKey = ${music.observableKey}")
-        music.observableKey.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                Log.d("デバッグ", "onPropertyChanged! music.key = ${music.key}")
-                Log.d("デバッグ", "onPropertyChanged! music.observableKey = ${music.observableKey}")
-                val pitchFreq = generatePitchFrequency(music.observableKey.get().toDouble())
-                val playbackParams = PlaybackParams().apply {
-                    pitch = pitchFreq
-                    speed = 1.0f
+        io.reactivex.Observable.create<Music> { emitter ->
+            this.music = findMusicByIdQuery.findMusic(musicId)!!
+            music.observableKey.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+                override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                    val pitchFreq = generatePitchFrequency(music.observableKey.get().toDouble())
+                    val playbackParams = PlaybackParams().apply {
+                        pitch = pitchFreq
+                        speed = 1.0f
+                    }
+                    exoPlayer.playbackParams = playbackParams
                 }
-                exoPlayer.playbackParams = playbackParams
+            })
+
+            val audioSource = exoPlayer.createAudioSource(context, musicId)
+            // Prepare the player with the source.
+            exoPlayer.prepare(audioSource)
+
+            val playbackParams = PlaybackParams().apply {
+                // TODO ここでDBの設定とか読み込んで反映できたらいいなー
+                pitch = 1.0f
+                speed = 1.0f
             }
-        })
-
-        val audioSource = exoPlayer.createAudioSource(context, musicId)
-        // Prepare the player with the source.
-        exoPlayer.prepare(audioSource)
-
-        // 曲変えても、前の曲でいじったkeyの値を引き回してしまう。。。
-        // TODO SongEntityにkeyの情報もたせてそれに合わせて再生するようにすれば良さげ
-        key.set(0.0f)
-        key.get()
-        val playbackParams = PlaybackParams().apply {
-            // TODO ここでDBの設定とか読み込んで反映できたらいいなー
-            pitch = 1.0f
-            speed = 1.0f
-        }
-        exoPlayer.playbackParams = playbackParams
+            exoPlayer.playbackParams = playbackParams
+            emitter.onNext(music)
+        }.subscribe { music -> musicLoadedStream.onNext(music) }
     }
 
     fun changePitch(i: Int) {

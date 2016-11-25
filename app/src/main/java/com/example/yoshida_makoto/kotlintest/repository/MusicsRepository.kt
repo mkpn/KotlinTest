@@ -3,6 +3,7 @@ package com.example.yoshida_makoto.kotlintest.repository
 import android.content.ContentResolver
 import android.databinding.ObservableArrayList
 import android.provider.MediaStore
+import android.util.Log
 import com.example.yoshida_makoto.kotlintest.MyError
 import com.example.yoshida_makoto.kotlintest.MySuccess
 import com.example.yoshida_makoto.kotlintest.entity.Music
@@ -16,25 +17,36 @@ import io.realm.Realm
 class MusicsRepository(val contentResolver: ContentResolver) {
 
     val realm = Realm.getDefaultInstance()
-    val musics: ObservableArrayList<Music> = ObservableArrayList()
+    val masterMusics: ObservableArrayList<Music> = ObservableArrayList()
+
+    // 音楽一覧ページ表示用
+    val targetMusics: ObservableArrayList<Music> = ObservableArrayList()
 
     val successStream = BehaviorSubject.create<MySuccess>()
     val errorStream = BehaviorSubject.create<MyError>()
 
     fun clearMusic() {
-        musics.clear()
+        masterMusics.clear()
+    }
+
+    init {
+        initializeMusics() // 初期化時、全楽曲を取得する
     }
 
     fun updateOrCreatePitch(musicId: Long, key: Int) {
-        Observable.fromIterable(musics)
+        Observable.fromIterable(masterMusics)
                 .filter { music -> music.id.equals(musicId) }
                 .subscribe { music ->
-                    music.key += key
+                    val a = music.key + key
+                    music.key = a
+                    realm.beginTransaction()
                     realm.copyToRealmOrUpdate(music)
+                    realm.commitTransaction()
                 }
     }
 
-    fun findSongListObservable(query: String) {
+    fun initializeMusics() {
+        //全音楽を取得し、musicsにaddする
         Observable.create<ObservableArrayList<Music>> { emitter ->
             val musicResolver = contentResolver
             val musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
@@ -48,10 +60,10 @@ class MusicsRepository(val contentResolver: ContentResolver) {
                     val thisTitle = musicCursor.getString(titleColumn)
                     val thisArtist: String = musicCursor.getString(artistColumn) ?: "no data"
                     val music = Music(thisId, thisTitle, thisArtist, 0)
-                    if (query.isEmpty() || music.isContainsString(query)) musics.add(music)
+                    masterMusics.add(music)
                 } while (musicCursor.moveToNext())
                 musicCursor.close()
-                emitter.onNext(musics)
+                emitter.onNext(masterMusics)
                 emitter.onComplete()
             } else {
                 emitter.onError(RuntimeException())
@@ -61,22 +73,16 @@ class MusicsRepository(val contentResolver: ContentResolver) {
                 .subscribe { musics -> successStream.onNext(MySuccess()) }
     }
 
-    fun findSong(musicId: Long): Music? {
-        val musicResolver = contentResolver
-        val musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-        val musicCursor = musicResolver.query(musicUri, null, null, null, null)
-        if (musicCursor != null && musicCursor.moveToFirst()) {
-            val titleColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-            val idColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID)
-            val artistColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
-            do {
-                val thisId = musicCursor.getLong(idColumn)
-                val thisTitle = musicCursor.getString(titleColumn)
-                val thisArtist: String = musicCursor.getString(artistColumn) ?: "no data"
-                val music = Music(thisId, thisTitle, thisArtist, 0)
-                if (musicId == thisId) return music
-            } while (musicCursor.moveToNext())
-            musicCursor.close()
+    fun searchMusicsByString(query: String): ObservableArrayList<Music> {
+        Log.d("デバッグ", "searchMusicsByString!!! ${query}")
+        targetMusics.clear()
+        masterMusics.forEach { music -> if (music.isContainsString(query)) targetMusics.add(music) }
+        return targetMusics
+    }
+
+    fun findSongById(musicId: Long): Music? {
+        masterMusics.forEach { music ->
+            if (music.id == musicId) return music
         }
         return null
     }

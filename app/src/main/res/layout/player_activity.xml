@@ -2,11 +2,11 @@
 
     <data>
 
-        <import type="android.databinding.ObservableField"/>
+        <import type="com.example.yoshida_makoto.kotlintest.entity.Music"/>
 
         <variable
-            name="key"
-            type="ObservableField&lt;Float&gt;"/>
+            name="music"
+            type="Music"/>
     </data>
 
     <RelativeLayout
@@ -51,11 +51,11 @@
         </LinearLayout>
 
         <TextView
-        android:id="@+id/current_key"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@{key.get().toString()}"/>
+            android:id="@+id/current_key"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@{music.observableKey.toString()}"/>
 
         <com.google.android.exoplayer2.ui.SimpleExoPlayerView
             android:id="@+id/player_view"

@@ -30,12 +30,12 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.player_activity)
         (application as MyApplication).applicationComponent.inject(this)
         val binding = DataBindingUtil.setContentView<PlayerActivityBinding>(this, R.layout.player_activity)
         val vm = PlayerViewModel()
         disposables.add(vm.pitchChangeObservable.subscribe { pitchDifference -> player.changePitch(pitchDifference) })
 
+        disposables.add(player.musicLoadedStream.subscribe { music -> binding.music = music })
         binding.pitchDown.setOnClickListener { player.changePitch(-1) }
         binding.pitchUp.setOnClickListener { player.changePitch(1) }
 
@@ -45,7 +45,5 @@ class PlayerActivity : AppCompatActivity() {
         val songId = intent.getLongExtra("song_id", 0)
 
         player.playMusic(songId)
-
-        binding.key = player.key
     }
 }

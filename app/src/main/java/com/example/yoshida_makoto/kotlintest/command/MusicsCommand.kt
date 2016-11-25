@@ -30,12 +30,4 @@ class MusicsCommand() {
     fun updateOrCreatePitch(musicId: Long, key: Int) {
         musicsRepository.updateOrCreatePitch(musicId, key)
     }
-
-    fun searchMusic(query: String) {
-        musicsRepository.findSongListObservable(query)
-    }
-
-    fun findAllMusic() {
-        musicsRepository.findSongListObservable("")
-    }
 }

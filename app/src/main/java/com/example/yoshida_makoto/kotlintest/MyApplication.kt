@@ -11,7 +11,6 @@ import io.realm.Realm
 /**
  * Created by yoshida_makoto on 2016/10/26.
  */
-
 class MyApplication : Application() {
     val applicationComponent: AppComponent by lazy { DaggerAppComponent.builder().rootModule(RootModule(this)).build() }
 
