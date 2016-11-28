@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:bind="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
 >
 
@@ -30,11 +31,19 @@
             tools:text="text"/>
 
         <TextView
+            android:id="@+id/key"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/music_title"
+            android:layout_below="@id/music_title"
+            bind:keyText="@{vm.music.observableKey}"
+            tools:text="key: default"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/key"
             android:text="@{vm.music.artist}"
             tools:text="text"/>
 
-</RelativeLayout>
+    </RelativeLayout>
 </layout>

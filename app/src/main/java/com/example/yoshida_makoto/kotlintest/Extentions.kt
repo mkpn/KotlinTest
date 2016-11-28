@@ -6,6 +6,7 @@ import android.databinding.BindingAdapter
 import android.databinding.ObservableArrayList
 import android.provider.MediaStore
 import android.support.v7.widget.RecyclerView
+import android.widget.TextView
 import com.example.yoshida_makoto.kotlintest.entity.Music
 import com.example.yoshida_makoto.kotlintest.ui.adapter.MusicListAdapter
 import com.example.yoshida_makoto.kotlintest.ui.decoration.DividerItemDecoration
@@ -24,6 +25,18 @@ fun RecyclerView.setMusicList(musics: ObservableArrayList<Music>) {
     adapter = MusicListAdapter(this.context, musics)
     musics.addOnListChangedCallback(ObservableListCallback(adapter))
     this.addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL_LIST))
+}
+
+@BindingAdapter("keyText")
+fun TextView.setKeyText(key: Int) {
+    val keyStatus: String
+    if (key == 0) {
+        keyStatus = "default"
+    } else {
+        val prefix = if (key > 0) "#" else "♭"
+        keyStatus = "$prefix${Math.abs(key)}"
+    }
+    this.text = "key: ${keyStatus}"
 }
 
 fun ExoPlayer.createAudioSource(context: Context, musicId: Long): ExtractorMediaSource {

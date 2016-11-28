@@ -37,7 +37,8 @@ class MusicListAdapter(val context: Context, musicList: ObservableArrayList<Musi
         vm = MusicRowViewModel(music)
         binding.vm = vm
         desposables.add(vm.musicClickObservable.subscribe { musicId ->
-            messenger.send(ClickMusicMessage(musicId)) })
+            messenger.send(ClickMusicMessage(musicId))
+        })
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder {

@@ -69,7 +69,7 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'io.realm:realm-gradle-plugin:2.2.0'
+        classpath 'io.realm:realm-gradle-plugin:2.2.1'
     }
 }
 

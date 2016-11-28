@@ -3,7 +3,6 @@ package com.example.yoshida_makoto.kotlintest.repository
 import android.content.ContentResolver
 import android.databinding.ObservableArrayList
 import android.provider.MediaStore
-import android.util.Log
 import com.example.yoshida_makoto.kotlintest.MyError
 import com.example.yoshida_makoto.kotlintest.MySuccess
 import com.example.yoshida_makoto.kotlintest.entity.Music
@@ -74,7 +73,6 @@ class MusicsRepository(val contentResolver: ContentResolver) {
     }
 
     fun searchMusicsByString(query: String): ObservableArrayList<Music> {
-        Log.d("デバッグ", "searchMusicsByString!!! ${query}")
         targetMusics.clear()
         masterMusics.forEach { music -> if (music.isContainsString(query)) targetMusics.add(music) }
         return targetMusics
