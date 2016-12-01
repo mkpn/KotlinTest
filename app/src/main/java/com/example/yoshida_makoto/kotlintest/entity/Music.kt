@@ -1,9 +1,11 @@
 package com.example.yoshida_makoto.kotlintest.entity
 
 import android.databinding.ObservableField
+import android.util.Log
 import io.realm.RealmObject
 import io.realm.annotations.Ignore
 import io.realm.annotations.PrimaryKey
+import java.util.regex.Pattern
 
 /**
  * RealmObjectを継承したクラスでvalは使えないぽい？あと、open classじゃないとダメっぽい
@@ -32,6 +34,12 @@ open class Music(
     }
 
     fun isContainsString(query: String): Boolean {
-        return title.contains(query) || artist.contains(query)
+        if (query.isEmpty()) return true
+
+        //大文字小文字を区別しない
+        val p = Pattern.compile(query, Pattern.CASE_INSENSITIVE)
+        val titleMatcher = p.matcher(title)
+        val artistMatcher = p.matcher(artist)
+        return titleMatcher.find() || artistMatcher.find()
     }
 }

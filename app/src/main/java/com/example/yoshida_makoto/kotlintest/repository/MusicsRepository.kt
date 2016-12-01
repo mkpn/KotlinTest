@@ -36,8 +36,8 @@ class MusicsRepository(val contentResolver: ContentResolver) {
         Observable.fromIterable(masterMusics)
                 .filter { music -> music.id.equals(musicId) }
                 .subscribe { music ->
-                    val a = music.key + key
-                    music.key = a
+                    val newKey = music.key + key
+                    music.key = newKey
                     realm.beginTransaction()
                     realm.copyToRealmOrUpdate(music)
                     realm.commitTransaction()
@@ -57,8 +57,11 @@ class MusicsRepository(val contentResolver: ContentResolver) {
                 do {
                     val thisId = musicCursor.getLong(idColumn)
                     val thisTitle = musicCursor.getString(titleColumn)
-                    val thisArtist: String = musicCursor.getString(artistColumn) ?: "no data"
-                    val music = Music(thisId, thisTitle, thisArtist, 0)
+                    val thisArtist: String = musicCursor.getString(artistColumn) ?: "no artist data"
+
+                    val savedMusic: Music? = realm.where(Music::class.java).equalTo("id", thisId).findFirst()
+                    val music = Music(thisId, thisTitle, thisArtist, savedMusic?.key ?: 0)
+
                     masterMusics.add(music)
                 } while (musicCursor.moveToNext())
                 musicCursor.close()

@@ -57,9 +57,8 @@ class Player(val context: Context) : ExoPlayer.EventListener,
             this.music = findMusicByIdQuery.findMusic(musicId)!!
             music.observableKey.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
                 override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                    val pitchFreq = generatePitchFrequency(music.observableKey.get().toDouble())
                     val playbackParams = PlaybackParams().apply {
-                        pitch = pitchFreq
+                        pitch = generatePitchFrequency(music.observableKey.get().toDouble())
                         speed = 1.0f
                     }
                     exoPlayer.playbackParams = playbackParams
@@ -71,8 +70,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
             exoPlayer.prepare(audioSource)
 
             val playbackParams = PlaybackParams().apply {
-                // TODO ここでDBの設定とか読み込んで反映できたらいいなー
-                pitch = 1.0f
+                pitch = generatePitchFrequency(music.observableKey.get().toDouble())
                 speed = 1.0f
             }
             exoPlayer.playbackParams = playbackParams
