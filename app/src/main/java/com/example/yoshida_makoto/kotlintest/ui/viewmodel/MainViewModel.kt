@@ -5,6 +5,7 @@ import com.example.yoshida_makoto.kotlintest.MyError
 import com.example.yoshida_makoto.kotlintest.MySuccess
 import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
 import com.example.yoshida_makoto.kotlintest.query.SearchMusicsByStringQuery
+import com.example.yoshida_makoto.kotlintest.ui.decoration.DividerItemDecoration
 import io.reactivex.subjects.BehaviorSubject
 
 /**
@@ -18,6 +19,7 @@ class MainViewModel() {
 
     val successStream = BehaviorSubject.create<MySuccess>()
     val errorStream = BehaviorSubject.create<MyError>()
+    val recyclerViewOrientation = DividerItemDecoration.VERTICAL_LIST
 
     init {
         musicsCommand.successStream.subscribe { successStream.onNext(MySuccess()) }

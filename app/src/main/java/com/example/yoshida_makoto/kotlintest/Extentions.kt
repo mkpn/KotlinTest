@@ -24,7 +24,11 @@ import com.google.android.exoplayer2.util.Util
 fun RecyclerView.setMusicList(musics: ObservableArrayList<Music>) {
     adapter = MusicListAdapter(this.context, musics)
     musics.addOnListChangedCallback(ObservableListCallback(adapter))
-    this.addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL_LIST))
+}
+
+@BindingAdapter("dividerFor")
+fun RecyclerView.setDividerFor(orientation: Int){
+    this.addItemDecoration(DividerItemDecoration(this.context, orientation))
 }
 
 @BindingAdapter("keyText")

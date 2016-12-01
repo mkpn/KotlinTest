@@ -16,6 +16,7 @@ import com.example.yoshida_makoto.kotlintest.MyApplication
 import com.example.yoshida_makoto.kotlintest.R
 import com.example.yoshida_makoto.kotlintest.databinding.ActivityMainBinding
 import com.example.yoshida_makoto.kotlintest.messages.ClickMusicMessage
+import com.example.yoshida_makoto.kotlintest.ui.decoration.DividerItemDecoration
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MainViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -37,6 +38,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(@Nullable savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MainActivityPermissionsDispatcher.initializeWithCheck(this)
+        binding.recyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST))
     }
 
     override fun onStart() {

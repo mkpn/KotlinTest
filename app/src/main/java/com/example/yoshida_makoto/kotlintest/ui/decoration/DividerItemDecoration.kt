@@ -33,13 +33,13 @@ class DividerItemDecoration(context: Context, orientation: Int) : RecyclerView.I
 
     override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State?) {
         if (mOrientation == VERTICAL_LIST) {
-            drawVertical(c, parent)
-        } else {
             drawHorizontal(c, parent)
+        } else {
+            drawVertical(c, parent)
         }
     }
 
-    fun drawVertical(c: Canvas, parent: RecyclerView) {
+    fun drawHorizontal(c: Canvas, parent: RecyclerView) {
         val left = parent.paddingLeft
         val right = parent.width - parent.paddingRight
 
@@ -54,8 +54,7 @@ class DividerItemDecoration(context: Context, orientation: Int) : RecyclerView.I
         }
     }
 
-    fun drawHorizontal(c: Canvas, parent: RecyclerView) {
-        val top = parent.paddingTop
+    fun drawVertical(c: Canvas, parent: RecyclerView) {
         val bottom = parent.height - parent.paddingBottom
 
         val childCount = parent.childCount
@@ -64,6 +63,7 @@ class DividerItemDecoration(context: Context, orientation: Int) : RecyclerView.I
             val params = child.layoutParams as RecyclerView.LayoutParams
             val left = child.right + params.rightMargin
             val right = left + mDivider.intrinsicHeight
+            val top = child.bottom + params.bottomMargin
             mDivider.setBounds(left, top, right, bottom)
             mDivider.draw(c)
         }
