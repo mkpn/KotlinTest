@@ -30,8 +30,7 @@ class MainActivity : AppCompatActivity() {
     private val permissionCheck by lazy { ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) }
     private val MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1
 
-    @Inject
-    lateinit var mainVm: MainViewModel
+    val mainVm = MainViewModel()
     @Inject
     lateinit var messenger: Messenger
 

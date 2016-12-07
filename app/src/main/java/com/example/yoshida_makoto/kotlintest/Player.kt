@@ -1,7 +1,6 @@
 package com.example.yoshida_makoto.kotlintest
 
 import android.content.Context
-import android.databinding.Observable
 import android.media.PlaybackParams
 import android.os.Handler
 import android.util.Log
@@ -14,9 +13,9 @@ import com.google.android.exoplayer2.trackselection.*
 import com.google.android.exoplayer2.ui.PlaybackControlView
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
+import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
-import javax.inject.Inject
 
 /**
  * Created by yoshida_makoto on 2016/10/25.
@@ -26,13 +25,12 @@ class Player(val context: Context) : ExoPlayer.EventListener,
         PlaybackControlView.VisibilityListener {
 
     private val TAG = "Player"
-    @Inject
-    lateinit var messenger: Messenger
+
     val musicsCommand = MusicsCommand()
     val findMusicByIdQuery = FindMusicByIdQuery()
     val musicLoadedStream = BehaviorSubject.create<Music>()
-
-    val errorObservable: PublishSubject<String> = PublishSubject.create()
+    val musicDurationFixedStream = BehaviorSubject.create<String>()
+    val errorObservable = PublishSubject.create<String>()
     val mainHandler = Handler()
     val defaultBandwidthMeter = DefaultBandwidthMeter()
     val videoTrackSelectionFactory = AdaptiveVideoTrackSelection.Factory(defaultBandwidthMeter)
@@ -53,29 +51,27 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     fun playMusic(musicId: Long) {
-        io.reactivex.Observable.create<Music> { emitter ->
+        Single.create<Music> { emitter ->
             this.music = findMusicByIdQuery.findMusic(musicId)!!
-            music.observableKey.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
-                override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                    val playbackParams = PlaybackParams().apply {
-                        pitch = generatePitchFrequency(music.observableKey.get().toDouble())
-                        speed = 1.0f
-                    }
-                    exoPlayer.playbackParams = playbackParams
-                }
-            })
-
             val audioSource = exoPlayer.createAudioSource(context, musicId)
             // Prepare the player with the source.
+            // start to play music
             exoPlayer.prepare(audioSource)
+            playCurrentMusic()
 
-            val playbackParams = PlaybackParams().apply {
-                pitch = generatePitchFrequency(music.observableKey.get().toDouble())
-                speed = 1.0f
-            }
-            exoPlayer.playbackParams = playbackParams
-            emitter.onNext(music)
-        }.subscribe { music -> musicLoadedStream.onNext(music) }
+            exoPlayer.addListener(this)
+            emitter.onSuccess(music)
+        }.subscribe { music ->
+            musicLoadedStream.onNext(music)
+        }
+    }
+
+    fun playCurrentMusic() {
+        val playbackParams = PlaybackParams().apply {
+            pitch = generatePitchFrequency(music.observableKey.get().toDouble())
+            speed = 1.0f
+        }
+        exoPlayer.playbackParams = playbackParams
     }
 
     fun changePitch(i: Int) {
@@ -86,25 +82,42 @@ class Player(val context: Context) : ExoPlayer.EventListener,
         playerView!!.player = exoPlayer
     }
 
+    fun getDurationString(): String {
+        return exoPlayer.getDurationString()
+    }
+
     override fun onPlayerError(error: ExoPlaybackException?) {
         errorObservable.onNext("エラー！")
         throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+        if (playbackState == ExoPlayer.STATE_READY) {
+            Single.create<String> { emitter ->
+                emitter.onSuccess(exoPlayer.getDurationString())
+            }.subscribe { durationString ->
+                Log.d("デバッグ", "converted duration ${exoPlayer.getDurationString()}")
+                musicDurationFixedStream.onNext(durationString)
+            }
+        }
     }
 
     override fun onLoadingChanged(isLoading: Boolean) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Log.d("デバッグ onLoadingChanged", "isLoading ${isLoading}")
     }
 
     override fun onPositionDiscontinuity() {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Log.d("デバッグ onPositionDis...", "よくわからん")
     }
 
     override fun onTimelineChanged(timeline: Timeline?, manifest: Any?) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Log.d("デバッグ onTimelineChanged", "timeline ${timeline.toString()}, manifest ${manifest.toString()}")
+    }
+
+    fun seekTo(progress: Int) {
+        val percent: Float = progress / 100f
+        val seekTarget: Long = (exoPlayer.duration * percent).toLong()
+        exoPlayer.seekTo(seekTarget)
     }
 
     override fun onTrackSelectionsChanged(trackSelections: TrackSelections<out MappingTrackSelector.MappedTrackInfo>?) {

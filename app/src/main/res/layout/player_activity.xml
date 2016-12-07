@@ -1,12 +1,13 @@
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
-        <import type="com.example.yoshida_makoto.kotlintest.entity.Music"/>
+        <import type="com.example.yoshida_makoto.kotlintest.ui.viewmodel.PlayerViewModel"/>
 
         <variable
-            name="music"
-            type="Music"/>
+            name="vm"
+            type="PlayerViewModel"/>
     </data>
 
     <RelativeLayout
@@ -31,8 +32,9 @@
                       android:layout_height="wrap_content"
                       android:layout_weight="1"
                       android:gravity="center"
-                      android:paddingLeft="4dp"
-                      android:paddingRight="4dp"
+                      android:onClickListener="@{vm.pitchDownClickListener}"
+                      android:paddingLeft="@dimen/small_padding"
+                      android:paddingRight="@dimen/small_padding"
                       android:text="♭"
                       android:textColor="@color/black"
                       android:textSize="30sp"
@@ -43,19 +45,59 @@
                       android:layout_height="wrap_content"
                       android:layout_weight="1"
                       android:gravity="center"
-                      android:paddingLeft="4dp"
-                      android:paddingRight="4dp"
+                      android:onClickListener="@{vm.pitchUpClickListener}"
+                      android:paddingLeft="@dimen/small_padding"
+                      android:paddingRight="@dimen/small_padding"
                       android:text="＃"
                       android:textColor="@color/black"
                       android:textSize="30sp"/>
         </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/key_controller"
+            android:padding="@dimen/small_padding">
+
+            <TextView
+                android:id="@+id/current_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:text="@{vm.currentTimeString}"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                tools:text="00:00"/>
+
+            <TextView
+                android:id="@+id/music_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:text="@{vm.durationString}"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                tools:text="00:00"/>
+
+            <SeekBar
+                android:id="@+id/seek_bar"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_toLeftOf="@id/music_duration"
+                android:layout_toRightOf="@id/current_time"
+                android:max="100"
+                android:onSeekBarChangeListener="@{vm.seekBarChangeListener}"
+                android:paddingLeft="@dimen/small_padding"
+                android:paddingRight="@dimen/small_padding"/>
+
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/current_key"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@{music.observableKey.toString()}"/>
+            android:text="@{vm.player.music.observableKey.toString()}"/>
 
         <com.google.android.exoplayer2.ui.SimpleExoPlayerView
             android:id="@+id/player_view"

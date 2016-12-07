@@ -6,6 +6,7 @@ import android.databinding.BindingAdapter
 import android.databinding.ObservableArrayList
 import android.provider.MediaStore
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.widget.TextView
 import com.example.yoshida_makoto.kotlintest.entity.Music
 import com.example.yoshida_makoto.kotlintest.ui.adapter.MusicListAdapter
@@ -16,6 +17,7 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by yoshida_makoto on 2016/11/14.
@@ -27,7 +29,7 @@ fun RecyclerView.setMusicList(musics: ObservableArrayList<Music>) {
 }
 
 @BindingAdapter("dividerFor")
-fun RecyclerView.setDividerFor(orientation: Int){
+fun RecyclerView.setDividerFor(orientation: Int) {
     this.addItemDecoration(DividerItemDecoration(this.context, orientation))
 }
 
@@ -53,4 +55,13 @@ fun ExoPlayer.createAudioSource(context: Context, musicId: Long): ExtractorMedia
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, musicId)
     // This is the MediaSource representing the media to be played.
     return ExtractorMediaSource(trackUri, dataSourceFactory, extractorsFactory, null, null)
+}
+
+fun ExoPlayer.getDurationString(): String {
+    val s = TimeUnit.MILLISECONDS.toSeconds(duration) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration))
+    val m = TimeUnit.MILLISECONDS.toMinutes(duration)
+    Log.d("デバッグ onLoadingChanged", "s is ${s}")
+    Log.d("デバッグ onLoadingChanged", "m is ${m}")
+
+    return "%02d:%02d".format(m, s)
 }

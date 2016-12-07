@@ -8,6 +8,7 @@ import com.example.yoshida_makoto.kotlintest.ui.activity.MainActivity
 import com.example.yoshida_makoto.kotlintest.ui.activity.PlayerActivity
 import com.example.yoshida_makoto.kotlintest.ui.adapter.MusicListAdapter
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MainViewModel
+import com.example.yoshida_makoto.kotlintest.ui.viewmodel.PlayerViewModel
 import dagger.Component
 import javax.inject.Singleton
 
@@ -25,4 +26,5 @@ interface AppComponent {
     fun inject(command: MusicsCommand)
     fun inject(query: FindMusicByIdQuery)
     fun inject(query: SearchMusicsByStringQuery)
+    fun inject(playerViewModel: PlayerViewModel)
 }

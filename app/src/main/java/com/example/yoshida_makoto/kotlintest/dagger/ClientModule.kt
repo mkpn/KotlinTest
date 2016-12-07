@@ -5,7 +5,6 @@ import android.content.Context
 import com.example.yoshida_makoto.kotlintest.Messenger
 import com.example.yoshida_makoto.kotlintest.Player
 import com.example.yoshida_makoto.kotlintest.repository.MusicsRepository
-import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MainViewModel
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -25,9 +24,6 @@ class ClientModule {
     @Provides
     @Singleton
     fun provideMusicRepository(contentResolver: ContentResolver): MusicsRepository = MusicsRepository(contentResolver)
-
-    @Provides
-    fun provideMainViewModel(): MainViewModel = MainViewModel()
 
     @Provides
     @Singleton
