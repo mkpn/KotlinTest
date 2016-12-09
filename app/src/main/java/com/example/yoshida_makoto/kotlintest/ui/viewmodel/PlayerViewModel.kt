@@ -2,12 +2,16 @@ package com.example.yoshida_makoto.kotlintest.ui.viewmodel
 
 import android.databinding.Observable
 import android.databinding.ObservableField
-import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.widget.SeekBar
 import com.example.yoshida_makoto.kotlintest.Player
+import com.example.yoshida_makoto.kotlintest.Util
 import com.example.yoshida_makoto.kotlintest.dagger.Injector
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 /**
@@ -19,30 +23,54 @@ class PlayerViewModel(musicId: Long) {
     lateinit var player: Player
     val disposables = CompositeDisposable()
 
+    val timeObservable = io.reactivex.Observable.interval(1, TimeUnit.SECONDS, Schedulers.newThread())!!
+    lateinit var timerDisposable: Disposable
+
     val durationString = ObservableField<String>("00:00")
     val currentTimeString = ObservableField<String>("00:00")
+    val maxProgressValue = ObservableField(0)
+    val currentProgressValue = ObservableField(0)
+    var isSeekBarMovable = true
 
     init {
+
         Injector.component.inject(this)
         disposables.add(player.musicLoadedStream.subscribe {
             player.music.observableKey.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
                 override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                    player.playCurrentMusic()
+                    player.updatePlayState()
                 }
             })
         })
 
         disposables.add(player.musicDurationFixedStream.subscribe {
             durationString.set(player.getDurationString())
+            maxProgressValue.set(player.getDuration().toInt())
+            timerDisposable = timeObservable.subscribe { second ->
+                currentTimeString.set(player.getCurrentDurationString())
+                currentProgressValue.set(player.getCurrentPosition().toInt())
+            }
         })
 
         player.playMusic(musicId)
     }
 
+    val seekBarTouchListener = View.OnTouchListener { view, motionEvent ->
+        when (motionEvent.action) {
+            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_BUTTON_PRESS -> {
+                isSeekBarMovable = false
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_BUTTON_RELEASE -> {
+                isSeekBarMovable = true
+            }
+
+        }
+        false
+    }
+
     val seekBarChangeListener = object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-            Log.d("デバッグ", "onProgressChanged!! ${progress}")
-            player.seekTo(progress)
+            currentTimeString.set(Util.convertMusicDuration2String(progress.toLong()))
         }
 
         override fun onStartTrackingTouch(seekBar: SeekBar) {
@@ -50,7 +78,7 @@ class PlayerViewModel(musicId: Long) {
         }
 
         override fun onStopTrackingTouch(seekBar: SeekBar) {
-
+            player.seekTo(seekBar.progress)
         }
     }
 
@@ -60,6 +88,10 @@ class PlayerViewModel(musicId: Long) {
 
     val pitchDownClickListener = View.OnClickListener {
         player.changePitch(-1)
+    }
+
+    val playButtonClickListener = View.OnClickListener {
+        timerDisposable.dispose()
     }
 
 }

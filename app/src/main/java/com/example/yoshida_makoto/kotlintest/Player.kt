@@ -11,7 +11,6 @@ import com.example.yoshida_makoto.kotlintest.query.FindMusicByIdQuery
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.trackselection.*
 import com.google.android.exoplayer2.ui.PlaybackControlView
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
@@ -57,8 +56,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
             // Prepare the player with the source.
             // start to play music
             exoPlayer.prepare(audioSource)
-            playCurrentMusic()
-
+            updatePlayState()
             exoPlayer.addListener(this)
             emitter.onSuccess(music)
         }.subscribe { music ->
@@ -66,7 +64,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
         }
     }
 
-    fun playCurrentMusic() {
+    fun updatePlayState() {
         val playbackParams = PlaybackParams().apply {
             pitch = generatePitchFrequency(music.observableKey.get().toDouble())
             speed = 1.0f
@@ -78,12 +76,16 @@ class Player(val context: Context) : ExoPlayer.EventListener,
         musicsCommand.updateOrCreatePitch(music.id, i)
     }
 
-    fun setPlayerView(playerView: SimpleExoPlayerView?) {
-        playerView!!.player = exoPlayer
+    fun getDurationString(): String {
+        return Util.convertMusicDuration2String(exoPlayer.duration)
     }
 
-    fun getDurationString(): String {
-        return exoPlayer.getDurationString()
+    fun getCurrentDurationString(): String{
+        return Util.convertMusicDuration2String(exoPlayer.currentPosition)
+    }
+
+    fun getCurrentPosition(): Long {
+        return exoPlayer.currentPosition
     }
 
     override fun onPlayerError(error: ExoPlaybackException?) {
@@ -94,9 +96,8 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         if (playbackState == ExoPlayer.STATE_READY) {
             Single.create<String> { emitter ->
-                emitter.onSuccess(exoPlayer.getDurationString())
+                emitter.onSuccess(getDurationString())
             }.subscribe { durationString ->
-                Log.d("デバッグ", "converted duration ${exoPlayer.getDurationString()}")
                 musicDurationFixedStream.onNext(durationString)
             }
         }
@@ -115,9 +116,9 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     fun seekTo(progress: Int) {
-        val percent: Float = progress / 100f
-        val seekTarget: Long = (exoPlayer.duration * percent).toLong()
-        exoPlayer.seekTo(seekTarget)
+        // 時間経過周りの表現はcurrentPosition使えばいけそう　現在の再生秒数的なのを返してくれるっぽい。
+        Log.d("デバッグ seekTo", "currentPosition ${exoPlayer.currentPosition}")
+        exoPlayer.seekTo(progress.toLong())
     }
 
     override fun onTrackSelectionsChanged(trackSelections: TrackSelections<out MappingTrackSelector.MappedTrackInfo>?) {
@@ -138,6 +139,10 @@ class Player(val context: Context) : ExoPlayer.EventListener,
             }
             throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
+    }
+
+    fun getDuration(): Long {
+        return exoPlayer.duration
     }
 
     override fun onVisibilityChange(visibility: Int) {

@@ -9,7 +9,6 @@ import com.example.yoshida_makoto.kotlintest.R
 import com.example.yoshida_makoto.kotlintest.dagger.Injector
 import com.example.yoshida_makoto.kotlintest.databinding.PlayerActivityBinding
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.PlayerViewModel
-import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import io.reactivex.disposables.CompositeDisposable
 
 /***
@@ -37,9 +36,8 @@ class PlayerActivity : AppCompatActivity() {
         val vm = PlayerViewModel(songId)
 
         // vm.PlayMusicCommandみたいにするのが良さげ
-        disposables.add(vm.player.musicLoadedStream.subscribe { music -> binding.vm = vm })
-
-        binding.playerView.controllerShowTimeoutMs = -1
-        binding.playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH)
+        disposables.add(vm.player.musicLoadedStream.subscribe { music ->
+            binding.vm = vm
+        })
     }
 }

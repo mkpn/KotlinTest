@@ -24,10 +24,6 @@ class MusicsRepository(val contentResolver: ContentResolver) {
     val successStream = BehaviorSubject.create<MySuccess>()
     val errorStream = BehaviorSubject.create<MyError>()
 
-    fun clearMusic() {
-        masterMusics.clear()
-    }
-
     init {
         initializeMusics() // 初期化時、全楽曲を取得する
     }

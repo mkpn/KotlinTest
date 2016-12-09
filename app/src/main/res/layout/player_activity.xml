@@ -22,7 +22,7 @@
             android:id="@+id/key_controller"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
+            android:layout_above="@+id/seek_bar_layout"
             android:layout_gravity="bottom"
             android:background="@color/light_gray"
             android:orientation="horizontal">
@@ -54,9 +54,10 @@
         </LinearLayout>
 
         <RelativeLayout
+            android:id="@+id/seek_bar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/key_controller"
+            android:layout_above="@+id/controller_layout"
             android:padding="@dimen/small_padding">
 
             <TextView
@@ -85,10 +86,48 @@
                 android:layout_height="20dp"
                 android:layout_toLeftOf="@id/music_duration"
                 android:layout_toRightOf="@id/current_time"
-                android:max="100"
+                android:max="@{vm.maxProgressValue}"
                 android:onSeekBarChangeListener="@{vm.seekBarChangeListener}"
                 android:paddingLeft="@dimen/small_padding"
-                android:paddingRight="@dimen/small_padding"/>
+                android:paddingRight="@dimen/small_padding"
+                android:progress="@{vm.currentProgressValue}"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/controller_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true">
+
+            <TextView
+                android:id="@+id/play_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/exo_controls_play"
+                android:onClickListener="@{vm.playButtonClickListener}"
+                android:textColor="@color/white"/>
+
+            <TextView
+                android:id="@+id/next_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_toRightOf="@+id/play_button"
+                android:background="@drawable/exo_controls_next"
+                android:onClickListener="@{vm.playButtonClickListener}"
+                android:textColor="@color/white"/>
+
+            <TextView
+                android:id="@+id/previous_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_toLeftOf="@+id/play_button"
+                android:background="@drawable/exo_controls_previous"
+                android:onClickListener="@{vm.playButtonClickListener}"
+                android:textColor="@color/white"/>
 
         </RelativeLayout>
 
@@ -97,13 +136,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:textColor="@color/white"
             android:text="@{vm.player.music.observableKey.toString()}"/>
-
-        <com.google.android.exoplayer2.ui.SimpleExoPlayerView
-            android:id="@+id/player_view"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_alignParentBottom="true"/>
 
     </RelativeLayout>
 </layout>
