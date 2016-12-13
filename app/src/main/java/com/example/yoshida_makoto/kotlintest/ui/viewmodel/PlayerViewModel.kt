@@ -5,12 +5,14 @@ import android.databinding.ObservableField
 import android.view.MotionEvent
 import android.view.View
 import android.widget.SeekBar
+import com.example.yoshida_makoto.kotlintest.MySuccess
 import com.example.yoshida_makoto.kotlintest.Player
 import com.example.yoshida_makoto.kotlintest.Util
 import com.example.yoshida_makoto.kotlintest.dagger.Injector
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -22,8 +24,10 @@ class PlayerViewModel(musicId: Long) {
     @Inject
     lateinit var player: Player
     val disposables = CompositeDisposable()
-
+    val playerLaunchDisposables = CompositeDisposable()
+    val launchSubject = BehaviorSubject.create<MySuccess>()
     val timeObservable = io.reactivex.Observable.interval(1, TimeUnit.SECONDS, Schedulers.newThread())!!
+
     lateinit var timerDisposable: Disposable
 
     val durationString = ObservableField<String>("00:00")
@@ -33,9 +37,8 @@ class PlayerViewModel(musicId: Long) {
     var isSeekBarMovable = true
 
     init {
-
         Injector.component.inject(this)
-        disposables.add(player.musicLoadedStream.subscribe {
+        disposables.add(player.musicLoadedSubject.subscribe {
             player.music.observableKey.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
                 override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                     player.updatePlayState()
@@ -43,7 +46,7 @@ class PlayerViewModel(musicId: Long) {
             })
         })
 
-        disposables.add(player.musicDurationFixedStream.subscribe {
+        disposables.add(player.musicDurationFixedSubject.subscribe {
             durationString.set(player.getDurationString())
             maxProgressValue.set(player.getDuration().toInt())
             timerDisposable = timeObservable.subscribe { second ->
@@ -52,7 +55,12 @@ class PlayerViewModel(musicId: Long) {
             }
         })
 
-        player.playMusic(musicId)
+        playerLaunchDisposables.add(player.launchPlayerSubject.subscribe {
+            launchSubject.onNext(MySuccess())
+            playerLaunchDisposables.dispose()
+        })
+
+        player.launchByMusicId(musicId)
     }
 
     val seekBarTouchListener = View.OnTouchListener { view, motionEvent ->

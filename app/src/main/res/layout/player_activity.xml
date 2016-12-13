@@ -36,7 +36,7 @@
                       android:paddingLeft="@dimen/small_padding"
                       android:paddingRight="@dimen/small_padding"
                       android:text="♭"
-                      android:textColor="@color/black"
+                      android:textColor="@color/gray_900"
                       android:textSize="30sp"
                       android:textStyle="bold"/>
 
@@ -49,7 +49,7 @@
                       android:paddingLeft="@dimen/small_padding"
                       android:paddingRight="@dimen/small_padding"
                       android:text="＃"
-                      android:textColor="@color/black"
+                      android:textColor="@color/gray_900"
                       android:textSize="30sp"/>
         </LinearLayout>
 

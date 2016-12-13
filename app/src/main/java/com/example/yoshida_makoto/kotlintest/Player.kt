@@ -8,11 +8,13 @@ import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
 import com.example.yoshida_makoto.kotlintest.dagger.Injector
 import com.example.yoshida_makoto.kotlintest.entity.Music
 import com.example.yoshida_makoto.kotlintest.query.FindMusicByIdQuery
+import com.example.yoshida_makoto.kotlintest.query.FindNextMusicQuery
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.trackselection.*
 import com.google.android.exoplayer2.ui.PlaybackControlView
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import io.reactivex.Single
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
@@ -25,10 +27,14 @@ class Player(val context: Context) : ExoPlayer.EventListener,
 
     private val TAG = "Player"
 
+    val disposables = CompositeDisposable()
     val musicsCommand = MusicsCommand()
+    val findNextMusicQuerry = FindNextMusicQuery()
     val findMusicByIdQuery = FindMusicByIdQuery()
-    val musicLoadedStream = BehaviorSubject.create<Music>()
-    val musicDurationFixedStream = BehaviorSubject.create<String>()
+    val launchPlayerSubject = BehaviorSubject.create<MySuccess>()
+
+    val musicLoadedSubject = BehaviorSubject.create<Music>()
+    val musicDurationFixedSubject = BehaviorSubject.create<String>()
     val errorObservable = PublishSubject.create<String>()
     val mainHandler = Handler()
     val defaultBandwidthMeter = DefaultBandwidthMeter()
@@ -43,25 +49,32 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     init {
         Injector.component.inject(this)
         exoPlayer.playWhenReady = true
+        disposables.add(findNextMusicQuerry.musicSubject.subscribe({ targetMusic ->
+            music = targetMusic
+            playMusic(music.id)
+        }))
+        disposables.add(findMusicByIdQuery.musicSubject.subscribe({ targetMusic ->
+            music = targetMusic
+            playMusic(music.id)
+            launchPlayerSubject.onNext(MySuccess())
+        }))
     }
 
     fun generatePitchFrequency(key: Double): Float {
         return Math.pow(2.0, key / 12).toFloat()
     }
 
+    fun launchByMusicId(musicId: Long) {
+        findMusicByIdQuery.findMusic(musicId)
+    }
+
     fun playMusic(musicId: Long) {
-        Single.create<Music> { emitter ->
-            this.music = findMusicByIdQuery.findMusic(musicId)!!
-            val audioSource = exoPlayer.createAudioSource(context, musicId)
-            // Prepare the player with the source.
-            // start to play music
-            exoPlayer.prepare(audioSource)
-            updatePlayState()
-            exoPlayer.addListener(this)
-            emitter.onSuccess(music)
-        }.subscribe { music ->
-            musicLoadedStream.onNext(music)
-        }
+        val audioSource = exoPlayer.createAudioSource(context, musicId)
+        // Prepare the player with the source.
+        // start to play music
+        exoPlayer.addListener(this)
+        exoPlayer.prepare(audioSource)
+        updatePlayState()
     }
 
     fun updatePlayState() {
@@ -80,7 +93,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
         return Util.convertMusicDuration2String(exoPlayer.duration)
     }
 
-    fun getCurrentDurationString(): String{
+    fun getCurrentDurationString(): String {
         return Util.convertMusicDuration2String(exoPlayer.currentPosition)
     }
 
@@ -98,7 +111,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
             Single.create<String> { emitter ->
                 emitter.onSuccess(getDurationString())
             }.subscribe { durationString ->
-                musicDurationFixedStream.onNext(durationString)
+                musicDurationFixedSubject.onNext(durationString)
             }
         }
     }

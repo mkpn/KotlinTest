@@ -8,6 +8,7 @@ import com.example.yoshida_makoto.kotlintest.MySuccess
 import com.example.yoshida_makoto.kotlintest.entity.Music
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
 import io.realm.Realm
 
 /**
@@ -16,6 +17,7 @@ import io.realm.Realm
 class MusicsRepository(val contentResolver: ContentResolver) {
 
     val realm = Realm.getDefaultInstance()
+    // 端末内の音楽保持しておく
     val masterMusics: ObservableArrayList<Music> = ObservableArrayList()
 
     // 音楽一覧ページ表示用
@@ -23,6 +25,8 @@ class MusicsRepository(val contentResolver: ContentResolver) {
 
     val successStream = BehaviorSubject.create<MySuccess>()
     val errorStream = BehaviorSubject.create<MyError>()
+
+    val musicSubject = PublishSubject.create<Music>()
 
     init {
         initializeMusics() // 初期化時、全楽曲を取得する
@@ -74,13 +78,23 @@ class MusicsRepository(val contentResolver: ContentResolver) {
     fun searchMusicsByString(query: String): ObservableArrayList<Music> {
         targetMusics.clear()
         masterMusics.forEach { music -> if (music.isContainsString(query)) targetMusics.add(music) }
+        targetMusics.sortBy { music -> music.title }
         return targetMusics
     }
 
-    fun findSongById(musicId: Long): Music? {
+    fun findSongById(musicId: Long) {
         masterMusics.forEach { music ->
-            if (music.id == musicId) return music
+            if (music.id == musicId) {
+                musicSubject.onNext(music)
+                return
+            }
         }
-        return null
+        // TODO エラー時の実装は全然していない。。。
+//        musicSubject.onError(RuntimeException())
+    }
+
+    fun findNextMusicFromPlayList(music: Music) {
+        val nextMusic = masterMusics.get(masterMusics.indexOf(music) + 1)
+        musicSubject.onNext(nextMusic)
     }
 }

@@ -1,6 +1,7 @@
 package com.example.yoshida_makoto.kotlintest.query
 
 import com.example.yoshida_makoto.kotlintest.dagger.Injector
+import com.example.yoshida_makoto.kotlintest.entity.Music
 import com.example.yoshida_makoto.kotlintest.repository.MusicsRepository
 import javax.inject.Inject
 
@@ -8,7 +9,7 @@ import javax.inject.Inject
  * Musicに対して、副作用のない命令(readだけになるかも)をするクラス
  * Created by yoshida_makoto on 2016/11/18.
  */
-class FindMusicByIdQuery() {
+class FindNextMusicQuery() {
     init {
         Injector.component.inject(this)
     }
@@ -18,7 +19,7 @@ class FindMusicByIdQuery() {
 
     val musicSubject = musicsRepository.musicSubject
 
-    fun findMusic(musicId: Long) {
-        musicsRepository.findSongById(musicId)
+    fun findMusic(music: Music) {
+        musicsRepository.findNextMusicFromPlayList(music)
     }
 }

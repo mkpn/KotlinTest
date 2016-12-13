@@ -27,6 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{vm.music.title}"
+            android:textColor="@color/gray_900"
             android:textSize="@dimen/big_text"
             tools:text="text"/>
 
@@ -35,6 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/music_title"
+            android:textColor="@color/gray_700"
             bind:keyText="@{vm.music.observableKey}"
             tools:text="key: default"/>
 
@@ -43,6 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/key"
             android:text="@{vm.music.artist}"
+            android:textColor="@color/gray_700"
             tools:text="text"/>
 
     </RelativeLayout>

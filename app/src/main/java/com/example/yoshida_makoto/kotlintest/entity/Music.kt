@@ -1,7 +1,6 @@
 package com.example.yoshida_makoto.kotlintest.entity
 
 import android.databinding.ObservableField
-import android.util.Log
 import io.realm.RealmObject
 import io.realm.annotations.Ignore
 import io.realm.annotations.PrimaryKey

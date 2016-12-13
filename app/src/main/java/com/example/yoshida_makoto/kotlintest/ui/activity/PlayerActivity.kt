@@ -35,9 +35,15 @@ class PlayerActivity : AppCompatActivity() {
         val songId = intent.getLongExtra(ARG_MUSIC_ID, 0)
         val vm = PlayerViewModel(songId)
 
+
         // vm.PlayMusicCommandみたいにするのが良さげ
-        disposables.add(vm.player.musicLoadedStream.subscribe { music ->
+        disposables.add(vm.launchSubject.subscribe { success ->
             binding.vm = vm
         })
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.dispose()
     }
 }

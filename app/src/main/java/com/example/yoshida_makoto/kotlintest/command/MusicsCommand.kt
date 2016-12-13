@@ -24,7 +24,7 @@ class MusicsCommand() {
 
     init {
         musicsRepository.successStream.subscribe { successStream.onNext(MySuccess()) }
-        musicsRepository.successStream.subscribe { errorStream.onNext(MyError()) }
+        musicsRepository.errorStream.subscribe { errorStream.onNext(MyError()) }
     }
 
     fun updateOrCreatePitch(musicId: Long, key: Int) {
