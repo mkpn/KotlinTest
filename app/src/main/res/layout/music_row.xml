@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/music_title"
             android:textColor="@color/gray_700"
-            bind:keyText="@{vm.music.observableKey}"
+            bind:keyText="@{vm.music.key}"
             tools:text="key: default"/>
 
         <TextView

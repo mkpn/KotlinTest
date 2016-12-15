@@ -1,18 +1,21 @@
 package com.example.yoshida_makoto.kotlintest.ui.viewmodel
 
-import android.databinding.Observable
+import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.SeekBar
-import com.example.yoshida_makoto.kotlintest.MySuccess
 import com.example.yoshida_makoto.kotlintest.Player
 import com.example.yoshida_makoto.kotlintest.Util
+import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
 import com.example.yoshida_makoto.kotlintest.dagger.Injector
+import com.example.yoshida_makoto.kotlintest.entity.Music
+import com.example.yoshida_makoto.kotlintest.query.FindMusicByIdQuery
+import com.example.yoshida_makoto.kotlintest.query.FindNextMusicQuery
+import com.example.yoshida_makoto.kotlintest.query.FindPreviousMusicQuery
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -23,44 +26,64 @@ import javax.inject.Inject
 class PlayerViewModel(musicId: Long) {
     @Inject
     lateinit var player: Player
-    val disposables = CompositeDisposable()
-    val playerLaunchDisposables = CompositeDisposable()
-    val launchSubject = BehaviorSubject.create<MySuccess>()
-    val timeObservable = io.reactivex.Observable.interval(1, TimeUnit.SECONDS, Schedulers.newThread())!!
+    lateinit var music: Music
 
-    lateinit var timerDisposable: Disposable
+    val findNextMusicQuery = FindNextMusicQuery()
+    val findMusicByIdQuery = FindMusicByIdQuery()
+    val findPreviousMusicQuery = FindPreviousMusicQuery()
+    val disposables = CompositeDisposable()
+    val musicsCommand = MusicsCommand()
+    val timeObservable = io.reactivex.Observable.interval(1, TimeUnit.SECONDS, Schedulers.newThread())!!
 
     val durationString = ObservableField<String>("00:00")
     val currentTimeString = ObservableField<String>("00:00")
+    var currentMusicKey = ObservableField(0)
     val maxProgressValue = ObservableField(0)
     val currentProgressValue = ObservableField(0)
+    val isPlaying = ObservableBoolean(true)
     var isSeekBarMovable = true
 
     init {
         Injector.component.inject(this)
-        disposables.add(player.musicLoadedSubject.subscribe {
-            player.music.observableKey.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
-                override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                    player.updatePlayState()
-                }
-            })
-        })
 
-        disposables.add(player.musicDurationFixedSubject.subscribe {
-            durationString.set(player.getDurationString())
-            maxProgressValue.set(player.getDuration().toInt())
-            timerDisposable = timeObservable.subscribe { second ->
-                currentTimeString.set(player.getCurrentDurationString())
-                currentProgressValue.set(player.getCurrentPosition().toInt())
-            }
-        })
+        disposables.addAll(
+                player.maxProgress.subscribe { progress ->
+                    maxProgressValue.set(progress)
+                },
+                player.durationString.subscribe { string ->
+                    durationString.set(string)
+                },
+                timeObservable.filter { isPlaying.get() && isSeekBarMovable }
+                        .subscribe { second ->
+                            currentTimeString.set(player.getCurrentDurationString())
+                            currentProgressValue.set(player.getCurrentPosition().toInt())
+                        },
+                player.isPlaying.subscribe { isPlaying ->
+                    this.isPlaying.set(isPlaying)
+                },
+                player.playEndSubject.subscribe { success ->
+                    findNextMusicQuery.find(music)
+                },
+                findNextMusicQuery.musicSubject.subscribe { targetMusic ->
+                    music = targetMusic
+                    player.startMusic(music)
+                },
+                findMusicByIdQuery.musicSubject
+                        .filter { targetMusic ->
+                            !isPlaying.get() || music.id != targetMusic.id
+                        }
+                        .subscribe { targetMusic ->
+                            music = targetMusic
+                            player.startMusic(music)
 
-        playerLaunchDisposables.add(player.launchPlayerSubject.subscribe {
-            launchSubject.onNext(MySuccess())
-            playerLaunchDisposables.dispose()
-        })
-
-        player.launchByMusicId(musicId)
+                            disposables.add(
+                                    music.keySubject.subscribe { key ->
+                                        currentMusicKey.set(key)
+                                        player.updatePlayState(key)
+                                    }
+                            )
+                        })
+        findMusicByIdQuery.findMusic(musicId)
     }
 
     val seekBarTouchListener = View.OnTouchListener { view, motionEvent ->
@@ -71,7 +94,6 @@ class PlayerViewModel(musicId: Long) {
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_BUTTON_RELEASE -> {
                 isSeekBarMovable = true
             }
-
         }
         false
     }
@@ -91,15 +113,31 @@ class PlayerViewModel(musicId: Long) {
     }
 
     val pitchUpClickListener = View.OnClickListener {
-        player.changePitch(1)
+        musicsCommand.updateOrCreatePitch(music.id, 1)
     }
 
     val pitchDownClickListener = View.OnClickListener {
-        player.changePitch(-1)
+        musicsCommand.updateOrCreatePitch(music.id, -1)
     }
 
     val playButtonClickListener = View.OnClickListener {
-        timerDisposable.dispose()
+        Log.d("デバッグ", "playButtonClickListener")
+        when (isPlaying.get()) {
+            true -> {
+                player.pause()
+            }
+            false -> {
+                player.play()
+            }
+        }
+    }
+
+    val playNextButtonClickListener = View.OnClickListener {
+        findNextMusicQuery.find(music)
+    }
+
+    val playPreviousButtonClickListener = View.OnClickListener {
+        findPreviousMusicQuery.find(music)
     }
 
 }

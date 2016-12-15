@@ -4,6 +4,7 @@ import com.example.yoshida_makoto.kotlintest.Player
 import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
 import com.example.yoshida_makoto.kotlintest.query.FindMusicByIdQuery
 import com.example.yoshida_makoto.kotlintest.query.FindNextMusicQuery
+import com.example.yoshida_makoto.kotlintest.query.FindPreviousMusicQuery
 import com.example.yoshida_makoto.kotlintest.query.SearchMusicsByStringQuery
 import com.example.yoshida_makoto.kotlintest.ui.activity.MainActivity
 import com.example.yoshida_makoto.kotlintest.ui.activity.PlayerActivity
@@ -28,5 +29,6 @@ interface AppComponent {
     fun inject(query: FindMusicByIdQuery)
     fun inject(query: SearchMusicsByStringQuery)
     fun inject(query: FindNextMusicQuery)
+    fun inject(query: FindPreviousMusicQuery)
     fun inject(playerViewModel: PlayerViewModel)
 }

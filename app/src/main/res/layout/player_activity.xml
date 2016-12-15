@@ -1,4 +1,5 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:bind="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -88,46 +89,10 @@
                 android:layout_toRightOf="@id/current_time"
                 android:max="@{vm.maxProgressValue}"
                 android:onSeekBarChangeListener="@{vm.seekBarChangeListener}"
+                android:onTouchListener="@{vm.seekBarTouchListener}"
                 android:paddingLeft="@dimen/small_padding"
                 android:paddingRight="@dimen/small_padding"
                 android:progress="@{vm.currentProgressValue}"/>
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/controller_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true">
-
-            <TextView
-                android:id="@+id/play_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:background="@drawable/exo_controls_play"
-                android:onClickListener="@{vm.playButtonClickListener}"
-                android:textColor="@color/white"/>
-
-            <TextView
-                android:id="@+id/next_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_toRightOf="@+id/play_button"
-                android:background="@drawable/exo_controls_next"
-                android:onClickListener="@{vm.playButtonClickListener}"
-                android:textColor="@color/white"/>
-
-            <TextView
-                android:id="@+id/previous_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_toLeftOf="@+id/play_button"
-                android:background="@drawable/exo_controls_previous"
-                android:onClickListener="@{vm.playButtonClickListener}"
-                android:textColor="@color/white"/>
 
         </RelativeLayout>
 
@@ -137,7 +102,47 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textColor="@color/white"
-            android:text="@{vm.player.music.observableKey.toString()}"/>
+            bind:keyText="@{vm.currentMusicKey}"/>
+
+        <RelativeLayout
+            android:id="@+id/controller_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true" android:layout_alignParentStart="true">
+
+            <TextView
+                android:id="@+id/play_button"
+                android:layout_width="@dimen/control_button_size"
+                android:layout_height="@dimen/control_button_size"
+                android:layout_centerHorizontal="true"
+                android:layout_marginRight="@dimen/control_button_space"
+                android:background="@drawable/exo_controls_play"
+                android:onClickListener="@{vm.playButtonClickListener}"
+                android:textColor="@color/white"
+                bind:isContentsPlaying="@{vm.isPlaying().get()}"/>
+
+            <TextView
+                android:id="@+id/next_button"
+                android:layout_width="@dimen/control_button_size"
+                android:layout_height="@dimen/control_button_size"
+                android:layout_centerHorizontal="true"
+                android:layout_toRightOf="@+id/play_button"
+                android:background="@drawable/exo_controls_next"
+                android:onClickListener="@{vm.playNextButtonClickListener}"
+                android:textColor="@color/white"/>
+
+            <TextView
+                android:id="@+id/previous_button"
+                android:layout_width="@dimen/control_button_size"
+                android:layout_height="@dimen/control_button_size"
+                android:layout_centerHorizontal="true"
+                android:layout_marginRight="@dimen/control_button_space"
+                android:layout_toLeftOf="@+id/play_button"
+                android:background="@drawable/exo_controls_previous"
+                android:onClickListener="@{vm.playPreviousButtonClickListener}"
+                android:textColor="@color/white"/>
+
+        </RelativeLayout>
 
     </RelativeLayout>
 </layout>

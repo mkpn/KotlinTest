@@ -89,12 +89,33 @@ class MusicsRepository(val contentResolver: ContentResolver) {
                 return
             }
         }
-        // TODO エラー時の実装は全然していない。。。
-//        musicSubject.onError(RuntimeException())
     }
 
     fun findNextMusicFromPlayList(music: Music) {
-        val nextMusic = masterMusics.get(masterMusics.indexOf(music) + 1)
+        val targetIndex: Int
+        when (masterMusics.indexOf(music)) {
+            masterMusics.size - 1 -> {
+                targetIndex = 0
+            }
+            else -> {
+                targetIndex = masterMusics.indexOf(music) + 1
+            }
+        }
+        val nextMusic = masterMusics.get(targetIndex)
+        musicSubject.onNext(nextMusic)
+    }
+
+    fun findPreviousMusicFromPlayList(music: Music) {
+        val targetIndex: Int
+        when (masterMusics.indexOf(music)) {
+            0 -> {
+                targetIndex = masterMusics.size - 1
+            }
+            else -> {
+                targetIndex = masterMusics.indexOf(music) - 1
+            }
+        }
+        val nextMusic = masterMusics.get(targetIndex)
         musicSubject.onNext(nextMusic)
     }
 }

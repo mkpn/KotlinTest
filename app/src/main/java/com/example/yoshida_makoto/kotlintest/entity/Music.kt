@@ -1,6 +1,6 @@
 package com.example.yoshida_makoto.kotlintest.entity
 
-import android.databinding.ObservableField
+import io.reactivex.subjects.BehaviorSubject
 import io.realm.RealmObject
 import io.realm.annotations.Ignore
 import io.realm.annotations.PrimaryKey
@@ -16,16 +16,16 @@ open class Music(
         var title: String = "",
         var artist: String = "",
         key: Int,
-        @Ignore var observableKey: ObservableField<Int> = ObservableField(0)) : RealmObject() {
+        @Ignore val keySubject: BehaviorSubject<Int> = BehaviorSubject.create<Int>()) : RealmObject() {
 
-    constructor() : this(0, "", "", 0, ObservableField()) {
+    constructor() : this(0, "", "", 0, BehaviorSubject.create<Int>()) {
     }
 
     var key: Int = 0
         get() = field
         set(value) {
             field = value
-            observableKey.set(value)
+            keySubject.onNext(value)
         }
 
     init {

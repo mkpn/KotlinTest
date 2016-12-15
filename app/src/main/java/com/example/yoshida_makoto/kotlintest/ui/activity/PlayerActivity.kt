@@ -34,12 +34,8 @@ class PlayerActivity : AppCompatActivity() {
         val binding = DataBindingUtil.setContentView<PlayerActivityBinding>(this, R.layout.player_activity)
         val songId = intent.getLongExtra(ARG_MUSIC_ID, 0)
         val vm = PlayerViewModel(songId)
-
-
         // vm.PlayMusicCommandみたいにするのが良さげ
-        disposables.add(vm.launchSubject.subscribe { success ->
-            binding.vm = vm
-        })
+        binding.vm = vm
     }
 
     override fun onDestroy() {

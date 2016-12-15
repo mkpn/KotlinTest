@@ -4,17 +4,13 @@ import android.content.Context
 import android.media.PlaybackParams
 import android.os.Handler
 import android.util.Log
-import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
 import com.example.yoshida_makoto.kotlintest.dagger.Injector
 import com.example.yoshida_makoto.kotlintest.entity.Music
-import com.example.yoshida_makoto.kotlintest.query.FindMusicByIdQuery
-import com.example.yoshida_makoto.kotlintest.query.FindNextMusicQuery
 import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.trackselection.*
 import com.google.android.exoplayer2.ui.PlaybackControlView
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
@@ -27,15 +23,13 @@ class Player(val context: Context) : ExoPlayer.EventListener,
 
     private val TAG = "Player"
 
-    val disposables = CompositeDisposable()
-    val musicsCommand = MusicsCommand()
-    val findNextMusicQuerry = FindNextMusicQuery()
-    val findMusicByIdQuery = FindMusicByIdQuery()
-    val launchPlayerSubject = BehaviorSubject.create<MySuccess>()
+    val errorObservable = PublishSubject.create<String>()!!
+    val maxProgress = BehaviorSubject.create<Int>()!!
+    var isPlaying = BehaviorSubject.create<Boolean>()!!
+    val durationString = PublishSubject.create<String>()!!
+    val playEndSubject = PublishSubject.create<Unit>()!!
+    lateinit var currentAudioResource: ExtractorMediaSource
 
-    val musicLoadedSubject = BehaviorSubject.create<Music>()
-    val musicDurationFixedSubject = BehaviorSubject.create<String>()
-    val errorObservable = PublishSubject.create<String>()
     val mainHandler = Handler()
     val defaultBandwidthMeter = DefaultBandwidthMeter()
     val videoTrackSelectionFactory = AdaptiveVideoTrackSelection.Factory(defaultBandwidthMeter)
@@ -44,49 +38,42 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     val exoPlayer: SimpleExoPlayer by lazy {
         ExoPlayerFactory.newSimpleInstance(context, trackSelector, loadControl)
     }
-    lateinit var music: Music
+
+    var playingMusicId: Long = -1 // 未再生時の初期値
 
     init {
         Injector.component.inject(this)
         exoPlayer.playWhenReady = true
-        disposables.add(findNextMusicQuerry.musicSubject.subscribe({ targetMusic ->
-            music = targetMusic
-            playMusic(music.id)
-        }))
-        disposables.add(findMusicByIdQuery.musicSubject.subscribe({ targetMusic ->
-            music = targetMusic
-            playMusic(music.id)
-            launchPlayerSubject.onNext(MySuccess())
-        }))
     }
 
     fun generatePitchFrequency(key: Double): Float {
         return Math.pow(2.0, key / 12).toFloat()
     }
 
-    fun launchByMusicId(musicId: Long) {
-        findMusicByIdQuery.findMusic(musicId)
-    }
-
-    fun playMusic(musicId: Long) {
-        val audioSource = exoPlayer.createAudioSource(context, musicId)
+    fun startMusic(music: Music) {
+        currentAudioResource = exoPlayer.createAudioSource(context, music.id)
         // Prepare the player with the source.
-        // start to play music
+        // play to play music
         exoPlayer.addListener(this)
-        exoPlayer.prepare(audioSource)
-        updatePlayState()
+        exoPlayer.prepare(currentAudioResource)
+        playingMusicId = music.id
+        updatePlayState(music.key.toDouble())
     }
 
-    fun updatePlayState() {
+    fun updatePlayState(key: Double) {
         val playbackParams = PlaybackParams().apply {
-            pitch = generatePitchFrequency(music.observableKey.get().toDouble())
+            pitch = generatePitchFrequency(key)
             speed = 1.0f
         }
         exoPlayer.playbackParams = playbackParams
     }
 
-    fun changePitch(i: Int) {
-        musicsCommand.updateOrCreatePitch(music.id, i)
+    fun updatePlayState(key: Int) {
+        updatePlayState(key.toDouble())
+    }
+
+    private fun getDuration(): Int {
+        return exoPlayer.duration.toInt()
     }
 
     fun getDurationString(): String {
@@ -107,11 +94,21 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-        if (playbackState == ExoPlayer.STATE_READY) {
-            Single.create<String> { emitter ->
-                emitter.onSuccess(getDurationString())
-            }.subscribe { durationString ->
-                musicDurationFixedSubject.onNext(durationString)
+        when (playbackState) {
+            ExoPlayer.STATE_READY -> {
+                Log.d("デバッグ", "STATE_READY")
+                isPlaying.onNext(true)
+                durationString.onNext(getDurationString())
+                maxProgress.onNext(getDuration())
+            }
+
+            ExoPlayer.STATE_ENDED -> {
+                exoPlayer.stop()
+                playEndSubject.onNext(Unit)
+            }
+
+            ExoPlayer.STATE_IDLE -> {
+                isPlaying.onNext(false)
             }
         }
     }
@@ -154,10 +151,6 @@ class Player(val context: Context) : ExoPlayer.EventListener,
         }
     }
 
-    fun getDuration(): Long {
-        return exoPlayer.duration
-    }
-
     override fun onVisibilityChange(visibility: Int) {
         throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -187,5 +180,16 @@ class Player(val context: Context) : ExoPlayer.EventListener,
             builder.append(", language=").append(format.language)
         }
         return builder.toString()
+    }
+
+    fun pause() {
+//        exoPlayer.pause()
+        exoPlayer.playWhenReady = false
+    }
+
+    fun play() {
+        Log.d("デバッグ", "currentDuration is ${exoPlayer.currentPosition}")
+//        exoPlayer.prepare(currentAudioResource)
+        exoPlayer.playWhenReady = true
     }
 }
