@@ -16,7 +16,7 @@ class FindMusicByIdQuery() {
     @Inject
     lateinit var musicsRepository: MusicsRepository
 
-    val musicSubject = musicsRepository.musicSubject
+    val musicSubject = musicsRepository.findMusicSubject
 
     fun findMusic(musicId: Long) {
         musicsRepository.findSongById(musicId)

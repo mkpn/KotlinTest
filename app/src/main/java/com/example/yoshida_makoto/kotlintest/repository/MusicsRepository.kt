@@ -26,7 +26,9 @@ class MusicsRepository(val contentResolver: ContentResolver) {
     val successStream = BehaviorSubject.create<MySuccess>()
     val errorStream = BehaviorSubject.create<MyError>()
 
-    val musicSubject = PublishSubject.create<Music>()
+    val findMusicSubject = PublishSubject.create<Music>()
+    val nextMusicSubject = PublishSubject.create<Music>()
+    val previousMusicSubject = PublishSubject.create<Music>()
 
     init {
         initializeMusics() // 初期化時、全楽曲を取得する
@@ -85,7 +87,7 @@ class MusicsRepository(val contentResolver: ContentResolver) {
     fun findSongById(musicId: Long) {
         masterMusics.forEach { music ->
             if (music.id == musicId) {
-                musicSubject.onNext(music)
+                findMusicSubject.onNext(music)
                 return
             }
         }
@@ -102,7 +104,7 @@ class MusicsRepository(val contentResolver: ContentResolver) {
             }
         }
         val nextMusic = masterMusics.get(targetIndex)
-        musicSubject.onNext(nextMusic)
+        nextMusicSubject.onNext(nextMusic)
     }
 
     fun findPreviousMusicFromPlayList(music: Music) {
@@ -116,6 +118,6 @@ class MusicsRepository(val contentResolver: ContentResolver) {
             }
         }
         val nextMusic = masterMusics.get(targetIndex)
-        musicSubject.onNext(nextMusic)
+        previousMusicSubject.onNext(nextMusic)
     }
 }

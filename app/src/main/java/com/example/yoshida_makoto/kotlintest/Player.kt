@@ -96,7 +96,6 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         when (playbackState) {
             ExoPlayer.STATE_READY -> {
-                Log.d("デバッグ", "STATE_READY")
                 isPlaying.onNext(true)
                 durationString.onNext(getDurationString())
                 maxProgress.onNext(getDuration())

@@ -17,7 +17,7 @@ class FindNextMusicQuery() {
     @Inject
     lateinit var musicsRepository: MusicsRepository
 
-    val musicSubject = musicsRepository.musicSubject
+    val musicSubject = musicsRepository.nextMusicSubject
 
     fun find(music: Music) {
         musicsRepository.findNextMusicFromPlayList(music)

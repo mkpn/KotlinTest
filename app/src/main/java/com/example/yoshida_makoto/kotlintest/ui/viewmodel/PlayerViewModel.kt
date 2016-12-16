@@ -1,6 +1,5 @@
 package com.example.yoshida_makoto.kotlintest.ui.viewmodel
 
-import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
 import android.util.Log
 import android.view.MotionEvent
@@ -40,7 +39,7 @@ class PlayerViewModel(musicId: Long) {
     var currentMusicKey = ObservableField(0)
     val maxProgressValue = ObservableField(0)
     val currentProgressValue = ObservableField(0)
-    val isPlaying = ObservableBoolean(true)
+    val isPlaying = ObservableField<Boolean>(true)
     var isSeekBarMovable = true
 
     init {
@@ -59,31 +58,38 @@ class PlayerViewModel(musicId: Long) {
                             currentProgressValue.set(player.getCurrentPosition().toInt())
                         },
                 player.isPlaying.subscribe { isPlaying ->
+                    Log.d("デバッグ", "is playin subscribe!!!")
                     this.isPlaying.set(isPlaying)
                 },
                 player.playEndSubject.subscribe { success ->
                     findNextMusicQuery.find(music)
                 },
                 findNextMusicQuery.musicSubject.subscribe { targetMusic ->
-                    music = targetMusic
-                    player.startMusic(music)
+                    playMusic(targetMusic)
                 },
                 findMusicByIdQuery.musicSubject
                         .filter { targetMusic ->
-                            !isPlaying.get() || music.id != targetMusic.id
+                            !isPlaying.get() || player.playingMusicId != targetMusic.id
                         }
                         .subscribe { targetMusic ->
-                            music = targetMusic
-                            player.startMusic(music)
-
-                            disposables.add(
-                                    music.keySubject.subscribe { key ->
-                                        currentMusicKey.set(key)
-                                        player.updatePlayState(key)
-                                    }
-                            )
-                        })
+                            playMusic(targetMusic)
+                        },
+                findPreviousMusicQuery.musicSubject.subscribe { targetMusic ->
+                    playMusic(targetMusic)
+                }
+        )
         findMusicByIdQuery.findMusic(musicId)
+    }
+
+    private fun playMusic(targetMusic: Music) {
+        music = targetMusic
+        player.startMusic(music)
+        disposables.add(
+                music.keySubject.subscribe { key ->
+                    currentMusicKey.set(key)
+                    player.updatePlayState(key)
+                }
+        )
     }
 
     val seekBarTouchListener = View.OnTouchListener { view, motionEvent ->
