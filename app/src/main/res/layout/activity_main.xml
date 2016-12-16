@@ -11,20 +11,29 @@
             name="vm"
             type="MainViewModel"/>
     </data>
+    <com.sothree.slidinguppanel.SlidingUpPanelLayout android:layout_width="match_parent"
+                                                     android:layout_height="match_parent"
+                                                     android:gravity="bottom">
 
-    <LinearLayout
-        android:id="@+id/root"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_view"
+        <LinearLayout
+            android:id="@+id/root"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
-            bind:dividerFor="@{vm.recyclerViewOrientation}"
-            bind:musicList="@{vm.musics}"/>
+            android:orientation="vertical">
 
-    </LinearLayout>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                bind:dividerFor="@{vm.recyclerViewOrientation}"
+                bind:musicList="@{vm.musics}"/>
+
+        </LinearLayout>
+
+        <fragment
+            android:name="com.example.yoshida_makoto.kotlintest.ui.fragment.PlayerFragment"
+            android:layout_width="match_parent" android:layout_height="match_parent"/>
+
+    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 </layout>

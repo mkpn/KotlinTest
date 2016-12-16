@@ -7,8 +7,8 @@ import com.example.yoshida_makoto.kotlintest.query.FindNextMusicQuery
 import com.example.yoshida_makoto.kotlintest.query.FindPreviousMusicQuery
 import com.example.yoshida_makoto.kotlintest.query.SearchMusicsByStringQuery
 import com.example.yoshida_makoto.kotlintest.ui.activity.MainActivity
-import com.example.yoshida_makoto.kotlintest.ui.activity.PlayerActivity
 import com.example.yoshida_makoto.kotlintest.ui.adapter.MusicListAdapter
+import com.example.yoshida_makoto.kotlintest.ui.fragment.PlayerFragment
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MainViewModel
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.PlayerViewModel
 import dagger.Component
@@ -20,7 +20,6 @@ import javax.inject.Singleton
 @Component(modules = arrayOf(RootModule::class, ClientModule::class))
 @Singleton
 interface AppComponent {
-    fun inject(playerActivity: PlayerActivity)
     fun inject(mainActivity: MainActivity)
     fun inject(vm: MainViewModel)
     fun inject(player: Player)
@@ -31,4 +30,5 @@ interface AppComponent {
     fun inject(query: FindNextMusicQuery)
     fun inject(query: FindPreviousMusicQuery)
     fun inject(playerViewModel: PlayerViewModel)
+    fun inject(playerFragment: PlayerFragment)
 }

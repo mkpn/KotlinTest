@@ -91,7 +91,6 @@ class MainActivity : AppCompatActivity() {
         disposables.add(messenger.register(ClickMusicMessage::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ message ->
-                    startActivity(PlayerActivity.createIntent(this, message.songId))
                 })
         )
     }

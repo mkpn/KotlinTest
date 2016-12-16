@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 24
@@ -61,7 +62,7 @@ dependencies {
 
 
 buildscript {
-    ext.kotlin_version = '1.0.3'
+    ext.kotlin_version = '1.0.5'
 
     repositories {
         mavenCentral()
@@ -75,6 +76,3 @@ buildscript {
 }
 
 apply plugin: 'realm-android'
-kapt {
-    generateStubs = true
-}
