@@ -35,9 +35,9 @@ class PlayerFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         Injector.component.inject(this)
-//        vm = PlayerViewModel()
+        vm = PlayerViewModel()
         // vm.PlayMusicCommandみたいにするのが良さげ
-//        binding.vm = vm
+        binding.vm = vm
     }
 
     override fun onDestroy() {
@@ -45,7 +45,7 @@ class PlayerFragment : Fragment() {
         vm.disposables.dispose()
     }
 
-    fun setMusic(musicId: Long){
-//        vm.startMusic(musicId)
+    fun startMusic(musicId: Long){
+        vm.startMusic(musicId)
     }
 }

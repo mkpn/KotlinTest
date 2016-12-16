@@ -22,7 +22,7 @@ import javax.inject.Inject
  * Created by yoshida_makoto on 2016/11/18.
  */
 
-class PlayerViewModel(musicId: Long) {
+class PlayerViewModel() {
     @Inject
     lateinit var player: Player
     lateinit var music: Music
@@ -78,8 +78,12 @@ class PlayerViewModel(musicId: Long) {
                     playMusic(targetMusic)
                 }
         )
+    }
+
+    fun startMusic(musicId: Long) {
         findMusicByIdQuery.findMusic(musicId)
     }
+
 
     private fun playMusic(targetMusic: Music) {
         music = targetMusic
