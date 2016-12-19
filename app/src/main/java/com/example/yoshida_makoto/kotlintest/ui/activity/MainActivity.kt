@@ -10,11 +10,10 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SearchView
-import android.util.Log
 import android.view.Menu
 import com.example.yoshida_makoto.kotlintest.Messenger
-import com.example.yoshida_makoto.kotlintest.MyApplication
 import com.example.yoshida_makoto.kotlintest.R
+import com.example.yoshida_makoto.kotlintest.dagger.Injector
 import com.example.yoshida_makoto.kotlintest.databinding.ActivityMainBinding
 import com.example.yoshida_makoto.kotlintest.messages.ClickMusicMessage
 import com.example.yoshida_makoto.kotlintest.ui.decoration.DividerItemDecoration
@@ -38,7 +37,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var messenger: Messenger
 
     override fun onCreate(@Nullable savedInstanceState: Bundle?) {
-        Log.d("デバッグ", "onCreate")
         super.onCreate(savedInstanceState)
         MainActivityPermissionsDispatcher.initializeWithCheck(this)
         binding.recyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST))
@@ -89,8 +87,7 @@ class MainActivity : AppCompatActivity() {
 
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     fun initialize() {
-        Log.d("デバッグ", "initialize")
-        (application as MyApplication).applicationComponent.inject(this)
+        Injector.component.inject(this)
         binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
         fragment = PlayerFragment.newInstance()
 

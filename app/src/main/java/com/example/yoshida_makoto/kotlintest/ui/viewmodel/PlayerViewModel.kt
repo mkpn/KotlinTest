@@ -1,7 +1,7 @@
 package com.example.yoshida_makoto.kotlintest.ui.viewmodel
 
+import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.SeekBar
@@ -39,12 +39,11 @@ class PlayerViewModel() {
     var currentMusicKey = ObservableField(0)
     val maxProgressValue = ObservableField(0)
     val currentProgressValue = ObservableField(0)
-    val isPlaying = ObservableField<Boolean>(true)
+    val contentsIsPlaying = ObservableBoolean(true)
     var isSeekBarMovable = true
 
     init {
         Injector.component.inject(this)
-
         disposables.addAll(
                 player.maxProgress.subscribe { progress ->
                     maxProgressValue.set(progress)
@@ -52,14 +51,14 @@ class PlayerViewModel() {
                 player.durationString.subscribe { string ->
                     durationString.set(string)
                 },
-                timeObservable.filter { isPlaying.get() && isSeekBarMovable }
+                timeObservable.filter { contentsIsPlaying.get() && isSeekBarMovable }
                         .subscribe { second ->
                             currentTimeString.set(player.getCurrentDurationString())
                             currentProgressValue.set(player.getCurrentPosition().toInt())
                         },
                 player.isPlaying.subscribe { isPlaying ->
-                    Log.d("デバッグ", "is playin subscribe!!!")
-                    this.isPlaying.set(isPlaying)
+                    contentsIsPlaying.set(isPlaying)
+                    contentsIsPlaying.notifyChange() //なんでbooleanだけこれ呼ばなきゃならんの、、、
                 },
                 player.playEndSubject.subscribe { success ->
                     findNextMusicQuery.find(music)
@@ -69,7 +68,7 @@ class PlayerViewModel() {
                 },
                 findMusicByIdQuery.musicSubject
                         .filter { targetMusic ->
-                            !isPlaying.get() || player.playingMusicId != targetMusic.id
+                            !contentsIsPlaying.get() || player.playingMusicId != targetMusic.id
                         }
                         .subscribe { targetMusic ->
                             playMusic(targetMusic)
@@ -83,7 +82,6 @@ class PlayerViewModel() {
     fun startMusic(musicId: Long) {
         findMusicByIdQuery.findMusic(musicId)
     }
-
 
     private fun playMusic(targetMusic: Music) {
         music = targetMusic
@@ -131,8 +129,7 @@ class PlayerViewModel() {
     }
 
     val playButtonClickListener = View.OnClickListener {
-        Log.d("デバッグ", "playButtonClickListener")
-        when (isPlaying.get()) {
+        when (contentsIsPlaying.get()) {
             true -> {
                 player.pause()
             }

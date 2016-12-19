@@ -15,7 +15,7 @@ import com.example.yoshida_makoto.kotlintest.ui.viewmodel.PlayerViewModel
  */
 class PlayerFragment : Fragment() {
     lateinit var binding: PlayerFragmentBinding
-    lateinit var vm: PlayerViewModel
+    val vm: PlayerViewModel = PlayerViewModel()
 
     companion object{
         fun newInstance(): PlayerFragment{
@@ -35,7 +35,6 @@ class PlayerFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         Injector.component.inject(this)
-        vm = PlayerViewModel()
         // vm.PlayMusicCommandみたいにするのが良さげ
         binding.vm = vm
     }

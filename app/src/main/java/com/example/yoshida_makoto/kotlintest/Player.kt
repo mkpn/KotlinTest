@@ -94,9 +94,10 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+        Log.d("デバッグ onLoadingChanged", "onPlayerStateChanged")
         when (playbackState) {
             ExoPlayer.STATE_READY -> {
-                isPlaying.onNext(true)
+                isPlaying.onNext(exoPlayer.playWhenReady)
                 durationString.onNext(getDurationString())
                 maxProgress.onNext(getDuration())
             }
@@ -104,10 +105,6 @@ class Player(val context: Context) : ExoPlayer.EventListener,
             ExoPlayer.STATE_ENDED -> {
                 exoPlayer.stop()
                 playEndSubject.onNext(Unit)
-            }
-
-            ExoPlayer.STATE_IDLE -> {
-                isPlaying.onNext(false)
             }
         }
     }
@@ -182,13 +179,11 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     fun pause() {
-//        exoPlayer.pause()
         exoPlayer.playWhenReady = false
     }
 
     fun play() {
         Log.d("デバッグ", "currentDuration is ${exoPlayer.currentPosition}")
-//        exoPlayer.prepare(currentAudioResource)
         exoPlayer.playWhenReady = true
     }
 }

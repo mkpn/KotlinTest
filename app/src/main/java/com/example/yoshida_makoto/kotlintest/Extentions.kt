@@ -6,7 +6,6 @@ import android.databinding.BindingAdapter
 import android.databinding.ObservableArrayList
 import android.provider.MediaStore
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import com.example.yoshida_makoto.kotlintest.entity.Music
@@ -47,13 +46,12 @@ fun TextView.setKeyText(key: Int) {
 
 @BindingAdapter("isContentsPlaying")
 fun View.setIsContentsPlaying(isPlaying: Boolean) {
-    Log.d("デバッグ", "iscontents playing called!!!!!!")
     when (isPlaying) {
         true -> {
             this.setBackgroundResource(R.drawable.exo_controls_pause)
         }
         false -> {
-            this.setBackgroundColor(R.drawable.exo_controls_play)
+            this.setBackgroundResource(R.drawable.exo_controls_play)
         }
     }
 }

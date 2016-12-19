@@ -32,10 +32,10 @@
 
         </LinearLayout>
 
-        <fragment
+        <FrameLayout
             android:id="@+id/player_container"
-            android:name="com.example.yoshida_makoto.kotlintest.ui.fragment.PlayerFragment"
-            android:layout_width="match_parent" android:layout_height="match_parent"/>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 </layout>

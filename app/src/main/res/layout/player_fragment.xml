@@ -119,7 +119,7 @@
                 android:background="@drawable/exo_controls_play"
                 android:onClickListener="@{vm.playButtonClickListener}"
                 android:textColor="@color/white"
-                bind:isContentsPlaying="@{vm.isPlaying().get()}"/>
+                bind:isContentsPlaying="@{vm.contentsIsPlaying}"/>
 
             <TextView
                 android:id="@+id/next_button"
