@@ -4,7 +4,7 @@ import android.content.Context
 import android.media.PlaybackParams
 import android.os.Handler
 import android.util.Log
-import com.example.yoshida_makoto.kotlintest.dagger.Injector
+import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.entity.Music
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.ExtractorMediaSource
@@ -94,7 +94,6 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-        Log.d("デバッグ onLoadingChanged", "onPlayerStateChanged")
         when (playbackState) {
             ExoPlayer.STATE_READY -> {
                 isPlaying.onNext(exoPlayer.playWhenReady)

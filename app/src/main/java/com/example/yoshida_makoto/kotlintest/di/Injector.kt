@@ -1,4 +1,4 @@
-package com.example.yoshida_makoto.kotlintest.dagger
+package com.example.yoshida_makoto.kotlintest.di
 
 /**
  * Created by yoshida_makoto on 2016/11/22.

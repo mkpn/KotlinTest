@@ -1,4 +1,4 @@
-package com.example.yoshida_makoto.kotlintest.dagger
+package com.example.yoshida_makoto.kotlintest.di
 
 import com.example.yoshida_makoto.kotlintest.Player
 import com.example.yoshida_makoto.kotlintest.command.MusicsCommand

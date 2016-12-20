@@ -13,7 +13,7 @@ import android.support.v7.widget.SearchView
 import android.view.Menu
 import com.example.yoshida_makoto.kotlintest.Messenger
 import com.example.yoshida_makoto.kotlintest.R
-import com.example.yoshida_makoto.kotlintest.dagger.Injector
+import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.databinding.ActivityMainBinding
 import com.example.yoshida_makoto.kotlintest.messages.ClickMusicMessage
 import com.example.yoshida_makoto.kotlintest.ui.decoration.DividerItemDecoration

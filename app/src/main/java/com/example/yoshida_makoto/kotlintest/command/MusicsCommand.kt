@@ -2,7 +2,7 @@ package com.example.yoshida_makoto.kotlintest.command
 
 import com.example.yoshida_makoto.kotlintest.MyError
 import com.example.yoshida_makoto.kotlintest.MySuccess
-import com.example.yoshida_makoto.kotlintest.dagger.Injector
+import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.repository.MusicsRepository
 import io.reactivex.subjects.BehaviorSubject
 import javax.inject.Inject

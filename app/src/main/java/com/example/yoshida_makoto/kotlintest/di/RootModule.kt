@@ -1,4 +1,4 @@
-package com.example.yoshida_makoto.kotlintest.dagger
+package com.example.yoshida_makoto.kotlintest.di
 
 import android.content.Context
 import com.example.yoshida_makoto.kotlintest.MyApplication

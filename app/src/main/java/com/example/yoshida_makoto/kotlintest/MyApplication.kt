@@ -2,10 +2,10 @@ package com.example.yoshida_makoto.kotlintest
 
 import android.app.Application
 
-import com.example.yoshida_makoto.kotlintest.dagger.AppComponent
-import com.example.yoshida_makoto.kotlintest.dagger.DaggerAppComponent
-import com.example.yoshida_makoto.kotlintest.dagger.Injector
-import com.example.yoshida_makoto.kotlintest.dagger.RootModule
+import com.example.yoshida_makoto.kotlintest.di.AppComponent
+import com.example.yoshida_makoto.kotlintest.di.DaggerAppComponent
+import com.example.yoshida_makoto.kotlintest.di.Injector
+import com.example.yoshida_makoto.kotlintest.di.RootModule
 import io.realm.Realm
 
 /**

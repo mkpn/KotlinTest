@@ -8,7 +8,7 @@ import android.widget.SeekBar
 import com.example.yoshida_makoto.kotlintest.Player
 import com.example.yoshida_makoto.kotlintest.Util
 import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
-import com.example.yoshida_makoto.kotlintest.dagger.Injector
+import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.entity.Music
 import com.example.yoshida_makoto.kotlintest.query.FindMusicByIdQuery
 import com.example.yoshida_makoto.kotlintest.query.FindNextMusicQuery
