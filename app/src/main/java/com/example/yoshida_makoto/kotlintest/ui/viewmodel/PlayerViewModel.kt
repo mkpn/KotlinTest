@@ -34,6 +34,8 @@ class PlayerViewModel() {
     val musicsCommand = MusicsCommand()
     val timeObservable = io.reactivex.Observable.interval(1, TimeUnit.SECONDS, Schedulers.newThread())!!
 
+    val musicTitle = ObservableField<String>("")
+    val artistName = ObservableField<String>("")
     val durationString = ObservableField<String>("00:00")
     val currentTimeString = ObservableField<String>("00:00")
     var currentMusicKey = ObservableField(0)
@@ -85,6 +87,8 @@ class PlayerViewModel() {
 
     private fun playMusic(targetMusic: Music) {
         music = targetMusic
+        musicTitle.set(targetMusic.title)
+        artistName.set(targetMusic.artist)
         player.startMusic(music)
         disposables.add(
                 music.keySubject.subscribe { key ->

@@ -15,9 +15,44 @@
         android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#88000000"
+        android:background="@color/gray_500"
         android:focusable="true"
         android:keepScreenOn="true">
+
+        <RelativeLayout android:id="@+id/music_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/small_dip2">
+
+            <TextView
+                android:id="@+id/music_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{vm.musicTitle}"
+                android:textColor="@color/white"
+                tools:text="music_title"/>
+
+            <TextView
+                android:id="@+id/artist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/music_title"
+                android:text="@{vm.artistName}"
+                android:textColor="@color/white"
+                tools:text="music_title"/>
+
+            <ImageView
+                android:id="@+id/label_play_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/control_button_space"
+                android:src="@drawable/ic_play_arrow_white_36dp"
+                android:onClickListener="@{vm.playButtonClickListener}"
+                android:textColor="@color/white"
+                bind:isContentsPlaying="@{vm.contentsIsPlaying}"/>
+
+        </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/key_controller"
@@ -34,8 +69,8 @@
                       android:layout_weight="1"
                       android:gravity="center"
                       android:onClickListener="@{vm.pitchDownClickListener}"
-                      android:paddingLeft="@dimen/small_padding"
-                      android:paddingRight="@dimen/small_padding"
+                      android:paddingLeft="@dimen/small_dip"
+                      android:paddingRight="@dimen/small_dip"
                       android:text="♭"
                       android:textColor="@color/gray_900"
                       android:textSize="30sp"
@@ -47,19 +82,31 @@
                       android:layout_weight="1"
                       android:gravity="center"
                       android:onClickListener="@{vm.pitchUpClickListener}"
-                      android:paddingLeft="@dimen/small_padding"
-                      android:paddingRight="@dimen/small_padding"
+                      android:paddingLeft="@dimen/small_dip"
+                      android:paddingRight="@dimen/small_dip"
                       android:text="＃"
                       android:textColor="@color/gray_900"
                       android:textSize="30sp"/>
+
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/current_key"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/key_controller"
+            android:layout_margin="@dimen/small_dip2"
+            android:gravity="center"
+            android:textColor="@color/white"
+            bind:keyText="@{vm.currentMusicKey}"
+            tools:text="key"/>
 
         <RelativeLayout
             android:id="@+id/seek_bar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/controller_layout"
-            android:padding="@dimen/small_padding">
+            android:padding="@dimen/small_dip">
 
             <TextView
                 android:id="@+id/current_time"
@@ -90,59 +137,63 @@
                 android:max="@{vm.maxProgressValue}"
                 android:onSeekBarChangeListener="@{vm.seekBarChangeListener}"
                 android:onTouchListener="@{vm.seekBarTouchListener}"
-                android:paddingLeft="@dimen/small_padding"
-                android:paddingRight="@dimen/small_padding"
+                android:paddingLeft="@dimen/small_dip"
+                android:paddingRight="@dimen/small_dip"
                 android:progress="@{vm.currentProgressValue}"/>
 
         </RelativeLayout>
 
-        <TextView
-            android:id="@+id/current_key"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="@color/white"
-            bind:keyText="@{vm.currentMusicKey}"/>
-
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/controller_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true" android:layout_alignParentStart="true">
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true">
 
-            <TextView
+            <ImageView
+                android:id="@+id/play_mode_shuffle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_shuffle_white_36dp"/>
+
+            <ImageView
+                android:id="@+id/previous_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_skip_previous_white_36dp"
+                android:onClickListener="@{vm.playPreviousButtonClickListener}"
+                android:textColor="@color/white"/>
+
+            <ImageView
                 android:id="@+id/play_button"
-                android:layout_width="@dimen/control_button_size"
-                android:layout_height="@dimen/control_button_size"
-                android:layout_centerHorizontal="true"
-                android:layout_marginRight="@dimen/control_button_space"
-                android:background="@drawable/exo_controls_play"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_play_arrow_white_36dp"
                 android:onClickListener="@{vm.playButtonClickListener}"
                 android:textColor="@color/white"
                 bind:isContentsPlaying="@{vm.contentsIsPlaying}"/>
 
-            <TextView
+            <ImageView
                 android:id="@+id/next_button"
-                android:layout_width="@dimen/control_button_size"
-                android:layout_height="@dimen/control_button_size"
-                android:layout_centerHorizontal="true"
-                android:layout_toRightOf="@+id/play_button"
-                android:background="@drawable/exo_controls_next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_skip_next_white_36dp"
                 android:onClickListener="@{vm.playNextButtonClickListener}"
                 android:textColor="@color/white"/>
 
-            <TextView
-                android:id="@+id/previous_button"
-                android:layout_width="@dimen/control_button_size"
-                android:layout_height="@dimen/control_button_size"
-                android:layout_centerHorizontal="true"
-                android:layout_marginRight="@dimen/control_button_space"
-                android:layout_toLeftOf="@+id/play_button"
-                android:background="@drawable/exo_controls_previous"
-                android:onClickListener="@{vm.playPreviousButtonClickListener}"
-                android:textColor="@color/white"/>
+            <ImageView
+                android:id="@+id/play_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/next_button"
+                android:layout_weight="1"
+                android:src="@drawable/ic_repeat_one_white_36dp"/>
 
-        </RelativeLayout>
+        </LinearLayout>
 
     </RelativeLayout>
 </layout>
