@@ -11,6 +11,7 @@
             name="vm"
             type="MainViewModel"/>
     </data>
+
     <com.sothree.slidinguppanel.SlidingUpPanelLayout
         android:id="@+id/root"
         android:layout_width="match_parent"

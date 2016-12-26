@@ -124,16 +124,16 @@ class MusicsRepository(val contentResolver: ContentResolver) {
     }
 
     fun findPreviousMusicFromPlayList(music: Music) {
-        val targetIndex: Int
-        when (masterMusics.indexOf(music)) {
+        when (targetMusics.indexOf(music)) {
             0 -> {
-                targetIndex = masterMusics.size - 1
+                previousMusicSubject.onNext(music)
             }
             else -> {
-                targetIndex = masterMusics.indexOf(music) - 1
+                val targetIndex: Int
+                targetIndex = targetMusics.indexOf(music) - 1
+                val nextMusic = targetMusics.get(targetIndex)
+                previousMusicSubject.onNext(nextMusic)
             }
         }
-        val nextMusic = masterMusics.get(targetIndex)
-        previousMusicSubject.onNext(nextMusic)
     }
 }

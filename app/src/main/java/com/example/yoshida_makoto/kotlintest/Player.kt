@@ -29,6 +29,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     var isPlaying = BehaviorSubject.create<Boolean>()!!
     val durationString = PublishSubject.create<String>()!!
     val playEndSubject = PublishSubject.create<PlayMode.PlayMode>()!!
+    val playPreviousSubject = PublishSubject.create<Unit>()!!
     lateinit var currentAudioResource: ExtractorMediaSource
 
     val playMode = PlayMode()
@@ -189,5 +190,18 @@ class Player(val context: Context) : ExoPlayer.EventListener,
 
     fun setNextPlayMode() {
         playMode.switchNextMode()
+    }
+
+    fun goToFinalDuration() {
+        exoPlayer.seekTo(exoPlayer.duration)
+    }
+
+    fun goToHeadOrPrevious() {
+        // 3.5秒が閾値
+        if (exoPlayer.currentPosition > 3500) {
+            exoPlayer.seekTo(0)
+        } else {
+            playPreviousSubject.onNext(Unit)
+        }
     }
 }

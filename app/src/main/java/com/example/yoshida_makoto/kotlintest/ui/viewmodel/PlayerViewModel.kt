@@ -26,6 +26,8 @@ import javax.inject.Inject
 class PlayerViewModel() {
     @Inject
     lateinit var player: Player
+
+    // 画面が回転したりするとnullになるっぽい
     lateinit var music: Music
 
     val findNextMusicQuery = FindNextMusicQuery()
@@ -82,6 +84,9 @@ class PlayerViewModel() {
                         },
                 findPreviousMusicQuery.musicSubject.subscribe { targetMusic ->
                     playMusic(targetMusic)
+                },
+                player.playPreviousSubject.subscribe { success ->
+                    findPreviousMusicQuery.find(music)
                 }
         )
     }
@@ -149,11 +154,12 @@ class PlayerViewModel() {
     }
 
     val playNextButtonClickListener = View.OnClickListener {
-        findNextMusicQuery.find(music, player.playMode.currentPlayMode.value)
+        player.goToFinalDuration()
     }
 
     val playPreviousButtonClickListener = View.OnClickListener {
-        findPreviousMusicQuery.find(music)
+        player.goToHeadOrPrevious()
+//        findPreviousMusicQuery.find(music)
     }
 
     val playModeIconClickListener = View.OnClickListener {
