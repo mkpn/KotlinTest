@@ -3,6 +3,7 @@ package com.example.yoshida_makoto.kotlintest.query
 import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.entity.Music
 import com.example.yoshida_makoto.kotlintest.repository.MusicsRepository
+import com.example.yoshida_makoto.kotlintest.value.PlayMode
 import javax.inject.Inject
 
 /**
@@ -19,7 +20,7 @@ class FindNextMusicQuery() {
 
     val musicSubject = musicsRepository.nextMusicSubject
 
-    fun find(music: Music) {
-        musicsRepository.findNextMusicFromPlayList(music)
+    fun find(music: Music, playMode: PlayMode.PlayMode) {
+        musicsRepository.findNextMusicFromPlayList(music, playMode)
     }
 }

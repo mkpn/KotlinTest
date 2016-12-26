@@ -11,6 +11,7 @@ import android.widget.TextView
 import com.example.yoshida_makoto.kotlintest.entity.Music
 import com.example.yoshida_makoto.kotlintest.ui.adapter.MusicListAdapter
 import com.example.yoshida_makoto.kotlintest.ui.decoration.DividerItemDecoration
+import com.example.yoshida_makoto.kotlintest.value.PlayMode
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource
@@ -52,6 +53,21 @@ fun ImageView.setIsContentsPlaying(isPlaying: Boolean) {
         }
         false -> {
             this.setImageResource(R.drawable.ic_play_arrow_white_36dp)
+        }
+    }
+}
+
+@BindingAdapter("playMode")
+fun ImageView.setPlayMode(playMode: PlayMode.PlayMode){
+    when(playMode){
+        PlayMode.PlayMode.DEFAULT -> {
+            this.setImageResource(R.drawable.ic_repeat_off_36dp)
+        }
+        PlayMode.PlayMode.REPEAT_ALL -> {
+            this.setImageResource(R.drawable.ic_repeat_white_36dp)
+        }
+        PlayMode.PlayMode.REPEAT_ONE -> {
+            this.setImageResource(R.drawable.ic_repeat_one_white_36dp)
         }
     }
 }

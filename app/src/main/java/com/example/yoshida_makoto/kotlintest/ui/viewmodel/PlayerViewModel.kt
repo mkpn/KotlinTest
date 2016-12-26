@@ -13,6 +13,7 @@ import com.example.yoshida_makoto.kotlintest.entity.Music
 import com.example.yoshida_makoto.kotlintest.query.FindMusicByIdQuery
 import com.example.yoshida_makoto.kotlintest.query.FindNextMusicQuery
 import com.example.yoshida_makoto.kotlintest.query.FindPreviousMusicQuery
+import com.example.yoshida_makoto.kotlintest.value.PlayMode
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
@@ -39,6 +40,7 @@ class PlayerViewModel() {
     val durationString = ObservableField<String>("00:00")
     val currentTimeString = ObservableField<String>("00:00")
     var currentMusicKey = ObservableField(0)
+    val playMode = ObservableField<PlayMode.PlayMode>()
     val maxProgressValue = ObservableField(0)
     val currentProgressValue = ObservableField(0)
     val contentsIsPlaying = ObservableBoolean(true)
@@ -47,6 +49,9 @@ class PlayerViewModel() {
     init {
         Injector.component.inject(this)
         disposables.addAll(
+                player.playMode.currentPlayMode.subscribe { playMode ->
+                    this.playMode.set(playMode)
+                },
                 player.maxProgress.subscribe { progress ->
                     maxProgressValue.set(progress)
                 },
@@ -62,8 +67,8 @@ class PlayerViewModel() {
                     contentsIsPlaying.set(isPlaying)
                     contentsIsPlaying.notifyChange() //なんでbooleanだけこれ呼ばなきゃならんの、、、
                 },
-                player.playEndSubject.subscribe { success ->
-                    findNextMusicQuery.find(music)
+                player.playEndSubject.subscribe { playMode ->
+                    findNextMusicQuery.find(music, playMode)
                 },
                 findNextMusicQuery.musicSubject.subscribe { targetMusic ->
                     playMusic(targetMusic)
@@ -144,11 +149,14 @@ class PlayerViewModel() {
     }
 
     val playNextButtonClickListener = View.OnClickListener {
-        findNextMusicQuery.find(music)
+        findNextMusicQuery.find(music, player.playMode.currentPlayMode.value)
     }
 
     val playPreviousButtonClickListener = View.OnClickListener {
         findPreviousMusicQuery.find(music)
     }
 
+    val playModeIconClickListener = View.OnClickListener {
+        player.setNextPlayMode()
+    }
 }

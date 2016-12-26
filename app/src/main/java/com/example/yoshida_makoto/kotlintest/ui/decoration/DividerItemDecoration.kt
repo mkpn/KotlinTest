@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import com.example.yoshida_makoto.kotlintest.R
 
 /**
  * Created by yoshida_makoto on 2016/10/26.
@@ -50,6 +51,7 @@ class DividerItemDecoration(context: Context, orientation: Int) : RecyclerView.I
             val top = child.bottom + params.bottomMargin
             val bottom = top + mDivider.intrinsicHeight
             mDivider.setBounds(left, top, right, bottom)
+            mDivider.setTint(R.color.gray_500)
             mDivider.draw(c)
         }
     }

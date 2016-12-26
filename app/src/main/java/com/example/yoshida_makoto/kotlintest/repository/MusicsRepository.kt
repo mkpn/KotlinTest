@@ -6,6 +6,7 @@ import android.provider.MediaStore
 import com.example.yoshida_makoto.kotlintest.MyError
 import com.example.yoshida_makoto.kotlintest.MySuccess
 import com.example.yoshida_makoto.kotlintest.entity.Music
+import com.example.yoshida_makoto.kotlintest.value.PlayMode
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
@@ -93,18 +94,33 @@ class MusicsRepository(val contentResolver: ContentResolver) {
         }
     }
 
-    fun findNextMusicFromPlayList(music: Music) {
+    fun findNextMusicFromPlayList(music: Music, playMode: PlayMode.PlayMode) {
         val targetIndex: Int
-        when (masterMusics.indexOf(music)) {
-            masterMusics.size - 1 -> {
-                targetIndex = 0
+
+        when (playMode) {
+            PlayMode.PlayMode.REPEAT_ONE -> {
+                nextMusicSubject.onNext(music)
             }
-            else -> {
-                targetIndex = masterMusics.indexOf(music) + 1
+            PlayMode.PlayMode.REPEAT_ALL -> {
+                when (targetMusics.indexOf(music)) {
+                    targetMusics.size - 1 -> {
+                        targetIndex = 0
+                    }
+                    else -> {
+                        targetIndex = targetMusics.indexOf(music) + 1
+                    }
+                }
+                val nextMusic = targetMusics.get(targetIndex)
+                nextMusicSubject.onNext(nextMusic)
+            }
+            PlayMode.PlayMode.DEFAULT -> {
+                if (targetMusics.indexOf(music) != targetMusics.size - 1) {
+                    targetIndex = targetMusics.indexOf(music) + 1
+                    val nextMusic = targetMusics.get(targetIndex)
+                    nextMusicSubject.onNext(nextMusic)
+                }
             }
         }
-        val nextMusic = masterMusics.get(targetIndex)
-        nextMusicSubject.onNext(nextMusic)
     }
 
     fun findPreviousMusicFromPlayList(music: Music) {

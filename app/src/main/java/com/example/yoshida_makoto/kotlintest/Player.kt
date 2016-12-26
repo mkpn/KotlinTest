@@ -6,6 +6,7 @@ import android.os.Handler
 import android.util.Log
 import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.entity.Music
+import com.example.yoshida_makoto.kotlintest.value.PlayMode
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.trackselection.*
@@ -27,9 +28,10 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     val maxProgress = BehaviorSubject.create<Int>()!!
     var isPlaying = BehaviorSubject.create<Boolean>()!!
     val durationString = PublishSubject.create<String>()!!
-    val playEndSubject = PublishSubject.create<Unit>()!!
+    val playEndSubject = PublishSubject.create<PlayMode.PlayMode>()!!
     lateinit var currentAudioResource: ExtractorMediaSource
 
+    val playMode = PlayMode()
     val mainHandler = Handler()
     val defaultBandwidthMeter = DefaultBandwidthMeter()
     val videoTrackSelectionFactory = AdaptiveVideoTrackSelection.Factory(defaultBandwidthMeter)
@@ -103,7 +105,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
 
             ExoPlayer.STATE_ENDED -> {
                 exoPlayer.stop()
-                playEndSubject.onNext(Unit)
+                playEndSubject.onNext(playMode.currentPlayMode.value)
             }
         }
     }
@@ -182,7 +184,10 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     fun play() {
-        Log.d("デバッグ", "currentDuration is ${exoPlayer.currentPosition}")
         exoPlayer.playWhenReady = true
+    }
+
+    fun setNextPlayMode() {
+        playMode.switchNextMode()
     }
 }
