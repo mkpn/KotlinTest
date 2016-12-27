@@ -32,6 +32,10 @@ open class Music(
         this.key = key
     }
 
+    fun changeKey(changeValue: Int) {
+        this.key += changeValue
+    }
+
     fun isContainsString(query: String): Boolean {
         if (query.isEmpty()) return true
 

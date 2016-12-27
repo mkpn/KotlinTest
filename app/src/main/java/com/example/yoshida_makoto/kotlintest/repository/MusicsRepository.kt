@@ -37,12 +37,11 @@ class MusicsRepository(val contentResolver: ContentResolver) {
         initializeMusics() // 初期化時、全楽曲を取得する
     }
 
-    fun updateOrCreatePitch(musicId: Long, key: Int) {
+    // keyの変更とか、musicに対してuserが何か更新した時はrealmに保存する
+    fun updateOrCreateMusic(musicId: Long) {
         Observable.fromIterable(masterMusics)
                 .filter { music -> music.id.equals(musicId) }
                 .subscribe { music ->
-                    val newKey = music.key + key
-                    music.key = newKey
                     realm.beginTransaction()
                     realm.copyToRealmOrUpdate(music)
                     realm.commitTransaction()

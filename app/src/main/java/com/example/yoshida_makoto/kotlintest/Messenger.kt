@@ -17,6 +17,6 @@ class Messenger {
     fun <T : Message> register(messageClazz: Class<out T>): Observable<T> {
         return bus
                 .ofType(messageClazz)
-                .map({ message -> message as T })
+                .map({ message -> message })
     }
 }

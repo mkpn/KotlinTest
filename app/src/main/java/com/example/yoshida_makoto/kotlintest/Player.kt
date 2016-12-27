@@ -24,6 +24,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
 
     private val TAG = "Player"
 
+    val music = BehaviorSubject.create<Music>()
     val errorObservable = PublishSubject.create<String>()!!
     val maxProgress = BehaviorSubject.create<Int>()!!
     var isPlaying = BehaviorSubject.create<Boolean>()!!
@@ -54,6 +55,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     fun startMusic(music: Music) {
+        this.music.onNext(music)
         currentAudioResource = exoPlayer.createAudioSource(context, music.id)
         // Prepare the player with the source.
         // play to play music
@@ -202,5 +204,9 @@ class Player(val context: Context) : ExoPlayer.EventListener,
         } else {
             playPreviousSubject.onNext(Unit)
         }
+    }
+
+    fun changePitch(changeValue: Int) {
+        music.value.changeKey(changeValue)
     }
 }

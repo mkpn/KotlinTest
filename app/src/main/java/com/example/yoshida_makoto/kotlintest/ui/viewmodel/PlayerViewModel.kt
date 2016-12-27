@@ -25,6 +25,9 @@ class PlayerViewModel() {
     lateinit var player: Player
 
     // 画面が回転したりするとnullになるっぽい
+    // メモ ViewModelではこういうドメインに紐づくエンティティクラスを直接持たないほうがいい気がした。
+    // うっかり、ViewModelにmusicがないとPlayerで音楽再生ができないっていう罠にはまっていた
+    // プレイネクストとか、全部playerに命令を流して、そこからのイベントでハンドリングするべきだったように思えてきた。
     lateinit var music: Music
 
     val findNextMusicQuery = FindNextMusicQuery()
@@ -53,6 +56,17 @@ class PlayerViewModel() {
         Injector.component.inject(this)
 
         disposables.addAll(
+                player.music.subscribe { music ->
+                    this.music = music
+                    // プレイヤーが音楽を再生済みの場合はplayerのmusicをセットする
+                    disposables.add(
+                            music.keySubject.subscribe { key ->
+                                currentMusicKey.set(key)
+                                player.updatePlayState(key)
+                                musicsCommand.updateOrCreateMusic(music.id)
+                            }
+                    )
+                },
                 player.playMode.currentPlayMode.subscribe { playMode ->
                     this.playMode.set(playMode)
                 },
@@ -110,16 +124,9 @@ class PlayerViewModel() {
     }
 
     private fun playMusic(targetMusic: Music) {
-        music = targetMusic
         musicTitle.set(targetMusic.title)
         artistName.set(targetMusic.artist)
-        player.startMusic(music)
-        disposables.add(
-                music.keySubject.subscribe { key ->
-                    currentMusicKey.set(key)
-                    player.updatePlayState(key)
-                }
-        )
+        player.startMusic(targetMusic)
     }
 
     val seekBarTouchListener = View.OnTouchListener { view, motionEvent ->
@@ -149,11 +156,11 @@ class PlayerViewModel() {
     }
 
     val pitchUpClickListener = View.OnClickListener {
-        musicsCommand.updateOrCreatePitch(music.id, 1)
+        player.changePitch(1)
     }
 
     val pitchDownClickListener = View.OnClickListener {
-        musicsCommand.updateOrCreatePitch(music.id, -1)
+        player.changePitch(-1)
     }
 
     val playButtonClickListener = View.OnClickListener {
@@ -165,7 +172,14 @@ class PlayerViewModel() {
     }
 
     val playNextButtonClickListener = View.OnClickListener {
-        player.goToFinalDuration()
+        when (playMode.get()) {
+            PlayMode.PlayMode.REPEAT_ALL -> {
+                findNextMusicWithLoopQuery.find(music)
+            }
+            else -> {
+                findNextMusicQuery.find(music)
+            }
+        }
     }
 
     val playPreviousButtonClickListener = View.OnClickListener {
