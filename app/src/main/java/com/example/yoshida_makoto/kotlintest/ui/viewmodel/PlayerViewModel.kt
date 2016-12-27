@@ -7,14 +7,10 @@ import android.view.View
 import android.widget.SeekBar
 import com.example.yoshida_makoto.kotlintest.Player
 import com.example.yoshida_makoto.kotlintest.Util
-import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
 import com.example.yoshida_makoto.kotlintest.di.Injector
-import com.example.yoshida_makoto.kotlintest.entity.Music
-import com.example.yoshida_makoto.kotlintest.query.*
+import com.example.yoshida_makoto.kotlintest.query.SortPlayListQuery
 import com.example.yoshida_makoto.kotlintest.value.PlayMode
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 /**
@@ -28,17 +24,11 @@ class PlayerViewModel() {
     // メモ ViewModelではこういうドメインに紐づくエンティティクラスを直接持たないほうがいい気がした。
     // うっかり、ViewModelにmusicがないとPlayerで音楽再生ができないっていう罠にはまっていた
     // プレイネクストとか、全部playerに命令を流して、そこからのイベントでハンドリングするべきだったように思えてきた。
-    lateinit var music: Music
+//    lateinit var music: Music
 
-    val findNextMusicQuery = FindNextMusicQuery()
-    val findNextMusicWithLoopQuery = FindNextMusicWithLoopQuery()
-    val findMusicByIdQuery = FindMusicByIdQuery()
-    val findPreviousMusicQuery = FindPreviousMusicQuery()
-    val updatePlayListQuery = UpdatePlayListQuery()
+
     val sortPlayListQuery = SortPlayListQuery()
     val disposables = CompositeDisposable()
-    val musicsCommand = MusicsCommand()
-    val timeObservable = io.reactivex.Observable.interval(1, TimeUnit.SECONDS, Schedulers.newThread())!!
 
     val musicTitle = ObservableField<String>("")
     val artistName = ObservableField<String>("")
@@ -57,15 +47,12 @@ class PlayerViewModel() {
 
         disposables.addAll(
                 player.music.subscribe { music ->
-                    this.music = music
-                    // プレイヤーが音楽を再生済みの場合はplayerのmusicをセットする
-                    disposables.add(
-                            music.keySubject.subscribe { key ->
-                                currentMusicKey.set(key)
-                                player.updatePlayState(key)
-                                musicsCommand.updateOrCreateMusic(music.id)
-                            }
-                    )
+                    musicTitle.set(music.title)
+                    artistName.set(music.artist)
+                    currentMusicKey.set(music.key)
+                },
+                player.keyChangeSubject.subscribe { key ->
+                    currentMusicKey.set(key)
                 },
                 player.playMode.currentPlayMode.subscribe { playMode ->
                     this.playMode.set(playMode)
@@ -76,57 +63,24 @@ class PlayerViewModel() {
                 player.durationString.subscribe { string ->
                     durationString.set(string)
                 },
-                timeObservable.filter { contentsIsPlaying.get() && isSeekBarMovable }
-                        .subscribe { second ->
-                            currentTimeString.set(player.getCurrentDurationString())
-                            currentProgressValue.set(player.getCurrentPosition().toInt())
+                player.currentProgressValueSubject.filter { isSeekBarMovable }
+                        .subscribe { value ->
+                            currentProgressValue.set(value)
+                        },
+                player.currentDurationSubject.filter { isSeekBarMovable }
+                        .subscribe { string ->
+                            currentTimeString.set(string)
                         },
                 player.isPlaying.subscribe { isPlaying ->
                     contentsIsPlaying.set(isPlaying)
                     contentsIsPlaying.notifyChange() //なんでbooleanだけこれ呼ばなきゃならんの、、、
-                },
-                player.playEndSubject.subscribe { playMode ->
-                    when (playMode) {
-                        PlayMode.PlayMode.REPEAT_ALL -> {
-                            findNextMusicWithLoopQuery.find(music)
-                        }
-                        PlayMode.PlayMode.REPEAT_ONE -> {
-                            playMusic(music)
-                        }
-                        else -> {
-                            findNextMusicQuery.find(music)
-                        }
-                    }
-                },
-                findNextMusicQuery.musicSubject.subscribe { targetMusic ->
-                    playMusic(targetMusic)
-                },
-                findMusicByIdQuery.musicSubject
-                        .filter { targetMusic ->
-                            !contentsIsPlaying.get() || player.playingMusicId != targetMusic.id
-                        }
-                        .subscribe { targetMusic ->
-                            playMusic(targetMusic)
-                        },
-                findPreviousMusicQuery.musicSubject.subscribe { targetMusic ->
-                    playMusic(targetMusic)
-                },
-                player.playPreviousSubject.subscribe { success ->
-                    findPreviousMusicQuery.find(music)
                 }
         )
     }
 
     // 音楽リストのタップ動作で再生を開始する
     fun startMusicByTap(musicId: Long) {
-        updatePlayListQuery.update()
-        findMusicByIdQuery.findMusic(musicId)
-    }
-
-    private fun playMusic(targetMusic: Music) {
-        musicTitle.set(targetMusic.title)
-        artistName.set(targetMusic.artist)
-        player.startMusic(targetMusic)
+        player.startMusicById(musicId)
     }
 
     val seekBarTouchListener = View.OnTouchListener { view, motionEvent ->
@@ -164,22 +118,11 @@ class PlayerViewModel() {
     }
 
     val playButtonClickListener = View.OnClickListener {
-        if (contentsIsPlaying.get() == true) {
-            player.pause()
-        } else {
-            player.play()
-        }
+        player.playOrPause()
     }
 
     val playNextButtonClickListener = View.OnClickListener {
-        when (playMode.get()) {
-            PlayMode.PlayMode.REPEAT_ALL -> {
-                findNextMusicWithLoopQuery.find(music)
-            }
-            else -> {
-                findNextMusicQuery.find(music)
-            }
-        }
+        player.skipToNext()
     }
 
     val playPreviousButtonClickListener = View.OnClickListener {
