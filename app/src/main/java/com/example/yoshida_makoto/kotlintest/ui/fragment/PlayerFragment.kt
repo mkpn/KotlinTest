@@ -45,6 +45,6 @@ class PlayerFragment : Fragment() {
     }
 
     fun startMusic(musicId: Long){
-        vm.startMusic(musicId)
+        vm.startMusicByTap(musicId)
     }
 }

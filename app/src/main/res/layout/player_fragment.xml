@@ -54,7 +54,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:layout_marginRight="@dimen/control_button_space"
                 android:onClickListener="@{vm.playButtonClickListener}"
                 android:src="@drawable/ic_play_arrow_white_36dp"
                 android:textColor="@color/white"
@@ -164,7 +163,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:src="@drawable/ic_shuffle_white_36dp"/>
+                android:onClickListener="@{vm.shuffleIconClickListner}"
+                android:src="@drawable/ic_shuffle_off_36dp"
+                bind:shuffle="@{vm.isShuffle}"/>
 
             <ImageView
                 android:id="@+id/previous_button"
@@ -201,7 +202,7 @@
                 android:layout_toRightOf="@id/next_button"
                 android:layout_weight="1"
                 android:onClickListener="@{vm.playModeIconClickListener}"
-                android:src="@drawable/ic_repeat_one_white_36dp"
+                android:src="@drawable/ic_repeat_off_36dp"
                 bind:playMode="@{vm.playMode}"/>
 
         </LinearLayout>

@@ -47,19 +47,16 @@ fun TextView.setKeyText(key: Int) {
 
 @BindingAdapter("isContentsPlaying")
 fun ImageView.setIsContentsPlaying(isPlaying: Boolean) {
-    when (isPlaying) {
-        true -> {
-            this.setImageResource(R.drawable.ic_pause_white_36dp)
-        }
-        false -> {
-            this.setImageResource(R.drawable.ic_play_arrow_white_36dp)
-        }
+    if (isPlaying == true) {
+        this.setImageResource(R.drawable.ic_pause_white_36dp)
+    } else {
+        this.setImageResource(R.drawable.ic_play_arrow_white_36dp)
     }
 }
 
 @BindingAdapter("playMode")
-fun ImageView.setPlayMode(playMode: PlayMode.PlayMode){
-    when(playMode){
+fun ImageView.setPlayMode(playMode: PlayMode.PlayMode) {
+    when (playMode) {
         PlayMode.PlayMode.DEFAULT -> {
             this.setImageResource(R.drawable.ic_repeat_off_36dp)
         }
@@ -69,6 +66,15 @@ fun ImageView.setPlayMode(playMode: PlayMode.PlayMode){
         PlayMode.PlayMode.REPEAT_ONE -> {
             this.setImageResource(R.drawable.ic_repeat_one_white_36dp)
         }
+    }
+}
+
+@BindingAdapter("shuffle")
+fun ImageView.setShuffle(isShuffle: Boolean) {
+    if (isShuffle == true) {
+        this.setImageResource(R.drawable.ic_shuffle_white_36dp)
+    } else {
+        this.setImageResource(R.drawable.ic_shuffle_off_36dp)
     }
 }
 

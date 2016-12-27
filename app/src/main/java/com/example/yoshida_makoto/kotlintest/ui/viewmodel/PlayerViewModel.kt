@@ -10,9 +10,7 @@ import com.example.yoshida_makoto.kotlintest.Util
 import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
 import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.entity.Music
-import com.example.yoshida_makoto.kotlintest.query.FindMusicByIdQuery
-import com.example.yoshida_makoto.kotlintest.query.FindNextMusicQuery
-import com.example.yoshida_makoto.kotlintest.query.FindPreviousMusicQuery
+import com.example.yoshida_makoto.kotlintest.query.*
 import com.example.yoshida_makoto.kotlintest.value.PlayMode
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -22,7 +20,6 @@ import javax.inject.Inject
 /**
  * Created by yoshida_makoto on 2016/11/18.
  */
-
 class PlayerViewModel() {
     @Inject
     lateinit var player: Player
@@ -31,8 +28,11 @@ class PlayerViewModel() {
     lateinit var music: Music
 
     val findNextMusicQuery = FindNextMusicQuery()
+    val findNextMusicWithLoopQuery = FindNextMusicWithLoopQuery()
     val findMusicByIdQuery = FindMusicByIdQuery()
     val findPreviousMusicQuery = FindPreviousMusicQuery()
+    val updatePlayListQuery = UpdatePlayListQuery()
+    val sortPlayListQuery = SortPlayListQuery()
     val disposables = CompositeDisposable()
     val musicsCommand = MusicsCommand()
     val timeObservable = io.reactivex.Observable.interval(1, TimeUnit.SECONDS, Schedulers.newThread())!!
@@ -45,11 +45,13 @@ class PlayerViewModel() {
     val playMode = ObservableField<PlayMode.PlayMode>()
     val maxProgressValue = ObservableField(0)
     val currentProgressValue = ObservableField(0)
+    val isShuffle = ObservableBoolean(false)
     val contentsIsPlaying = ObservableBoolean(true)
     var isSeekBarMovable = true
 
     init {
         Injector.component.inject(this)
+
         disposables.addAll(
                 player.playMode.currentPlayMode.subscribe { playMode ->
                     this.playMode.set(playMode)
@@ -70,7 +72,17 @@ class PlayerViewModel() {
                     contentsIsPlaying.notifyChange() //なんでbooleanだけこれ呼ばなきゃならんの、、、
                 },
                 player.playEndSubject.subscribe { playMode ->
-                    findNextMusicQuery.find(music, playMode)
+                    when (playMode) {
+                        PlayMode.PlayMode.REPEAT_ALL -> {
+                            findNextMusicWithLoopQuery.find(music)
+                        }
+                        PlayMode.PlayMode.REPEAT_ONE -> {
+                            playMusic(music)
+                        }
+                        else -> {
+                            findNextMusicQuery.find(music)
+                        }
+                    }
                 },
                 findNextMusicQuery.musicSubject.subscribe { targetMusic ->
                     playMusic(targetMusic)
@@ -91,7 +103,9 @@ class PlayerViewModel() {
         )
     }
 
-    fun startMusic(musicId: Long) {
+    // 音楽リストのタップ動作で再生を開始する
+    fun startMusicByTap(musicId: Long) {
+        updatePlayListQuery.update()
         findMusicByIdQuery.findMusic(musicId)
     }
 
@@ -143,13 +157,10 @@ class PlayerViewModel() {
     }
 
     val playButtonClickListener = View.OnClickListener {
-        when (contentsIsPlaying.get()) {
-            true -> {
-                player.pause()
-            }
-            false -> {
-                player.play()
-            }
+        if (contentsIsPlaying.get() == true) {
+            player.pause()
+        } else {
+            player.play()
         }
     }
 
@@ -159,10 +170,15 @@ class PlayerViewModel() {
 
     val playPreviousButtonClickListener = View.OnClickListener {
         player.goToHeadOrPrevious()
-//        findPreviousMusicQuery.find(music)
     }
 
     val playModeIconClickListener = View.OnClickListener {
         player.setNextPlayMode()
+    }
+
+    val shuffleIconClickListner = View.OnClickListener {
+        isShuffle.set(!isShuffle.get())
+        sortPlayListQuery.sort(isShuffle.get())
+        isShuffle.notifyChange()
     }
 }

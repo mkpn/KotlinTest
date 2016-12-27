@@ -93,7 +93,6 @@ class Player(val context: Context) : ExoPlayer.EventListener,
 
     override fun onPlayerError(error: ExoPlaybackException?) {
         errorObservable.onNext("エラー！")
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
@@ -197,7 +196,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     fun goToHeadOrPrevious() {
-        // 3.5秒が閾値
+        // 3.5秒を閾値として、曲の最初に戻るか、前の曲を再生するかの処理に分かれる
         if (exoPlayer.currentPosition > 3500) {
             exoPlayer.seekTo(0)
         } else {

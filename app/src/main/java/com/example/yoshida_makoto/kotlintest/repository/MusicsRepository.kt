@@ -6,11 +6,11 @@ import android.provider.MediaStore
 import com.example.yoshida_makoto.kotlintest.MyError
 import com.example.yoshida_makoto.kotlintest.MySuccess
 import com.example.yoshida_makoto.kotlintest.entity.Music
-import com.example.yoshida_makoto.kotlintest.value.PlayMode
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import io.realm.Realm
+import java.util.*
 
 /**
  * Created by yoshida_makoto on 2016/11/11.
@@ -21,8 +21,10 @@ class MusicsRepository(val contentResolver: ContentResolver) {
     // 端末内の音楽保持しておく
     val masterMusics: ObservableArrayList<Music> = ObservableArrayList()
 
-    // 音楽一覧ページ表示用
+    // ページ表示用の音楽リスト
     val targetMusics: ObservableArrayList<Music> = ObservableArrayList()
+    // 実際に再生するための音楽リスト
+    var currentPlayList: ArrayList<Music> = ArrayList()
 
     val successStream = BehaviorSubject.create<MySuccess>()
     val errorStream = BehaviorSubject.create<MyError>()
@@ -80,9 +82,25 @@ class MusicsRepository(val contentResolver: ContentResolver) {
 
     fun searchMusicsByString(query: String): ObservableArrayList<Music> {
         targetMusics.clear()
-        masterMusics.forEach { music -> if (music.isContainsString(query)) targetMusics.add(music) }
+        masterMusics.forEach { music ->
+            if (music.isContainsString(query)) targetMusics.add(music)
+        }
         targetMusics.sortBy { music -> music.title }
         return targetMusics
+    }
+
+    fun sortPlayList(isShuffle: Boolean) {
+        if (isShuffle) {
+            Collections.shuffle(currentPlayList)
+        } else {
+            currentPlayList.sortBy { music -> music.title }
+        }
+    }
+
+    // 表示中の音楽リストを"タップして"再生が始まる時は、
+    // これから再生されるプレイリストを表示中の音楽リストに上書きする
+    fun updatePlayList() {
+        currentPlayList = targetMusics
     }
 
     fun findSongById(musicId: Long) {
@@ -94,46 +112,40 @@ class MusicsRepository(val contentResolver: ContentResolver) {
         }
     }
 
-    fun findNextMusicFromPlayList(music: Music, playMode: PlayMode.PlayMode) {
+    fun findNextMusicFromPlayList(music: Music) {
         val targetIndex: Int
-
-        when (playMode) {
-            PlayMode.PlayMode.REPEAT_ONE -> {
-                nextMusicSubject.onNext(music)
-            }
-            PlayMode.PlayMode.REPEAT_ALL -> {
-                when (targetMusics.indexOf(music)) {
-                    targetMusics.size - 1 -> {
-                        targetIndex = 0
-                    }
-                    else -> {
-                        targetIndex = targetMusics.indexOf(music) + 1
-                    }
-                }
-                val nextMusic = targetMusics.get(targetIndex)
-                nextMusicSubject.onNext(nextMusic)
-            }
-            PlayMode.PlayMode.DEFAULT -> {
-                if (targetMusics.indexOf(music) != targetMusics.size - 1) {
-                    targetIndex = targetMusics.indexOf(music) + 1
-                    val nextMusic = targetMusics.get(targetIndex)
-                    nextMusicSubject.onNext(nextMusic)
-                }
-            }
+        if (currentPlayList.indexOf(music) != currentPlayList.size - 1) {
+            targetIndex = currentPlayList.indexOf(music) + 1
+            val nextMusic = currentPlayList.get(targetIndex)
+            nextMusicSubject.onNext(nextMusic)
         }
     }
 
     fun findPreviousMusicFromPlayList(music: Music) {
-        when (targetMusics.indexOf(music)) {
+        when (currentPlayList.indexOf(music)) {
             0 -> {
                 previousMusicSubject.onNext(music)
             }
             else -> {
                 val targetIndex: Int
-                targetIndex = targetMusics.indexOf(music) - 1
-                val nextMusic = targetMusics.get(targetIndex)
+                targetIndex = currentPlayList.indexOf(music) - 1
+                val nextMusic = currentPlayList.get(targetIndex)
                 previousMusicSubject.onNext(nextMusic)
             }
         }
+    }
+
+    fun findNextMusicWithLoopFromPlayList(music: Music) {
+        val targetIndex: Int
+        when (currentPlayList.indexOf(music)) {
+            currentPlayList.size - 1 -> {
+                targetIndex = 0
+            }
+            else -> {
+                targetIndex = currentPlayList.indexOf(music) + 1
+            }
+        }
+        val nextMusic = currentPlayList.get(targetIndex)
+        nextMusicSubject.onNext(nextMusic)
     }
 }
