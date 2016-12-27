@@ -26,7 +26,6 @@ class PlayerViewModel() {
     // プレイネクストとか、全部playerに命令を流して、そこからのイベントでハンドリングするべきだったように思えてきた。
 //    lateinit var music: Music
 
-
     val sortPlayListQuery = SortPlayListQuery()
     val disposables = CompositeDisposable()
 

@@ -46,5 +46,8 @@ class PlayerFragment : Fragment() {
 
     fun startMusic(musicId: Long){
         vm.startMusicByTap(musicId)
+//        val serviceIntent = Intent(activity, NotificationPlayerPanelService::class.java)
+//        serviceIntent.action = PlayerServiceValues.SHOW_NOTIFICATION
+//        activity.startService(serviceIntent)
     }
 }

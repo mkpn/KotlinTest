@@ -1,6 +1,6 @@
 package com.example.yoshida_makoto.kotlintest.di
 
-import com.example.yoshida_makoto.kotlintest.ControllableNotificationService
+import com.example.yoshida_makoto.kotlintest.NotificationPlayerPanelService
 import com.example.yoshida_makoto.kotlintest.Player
 import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
 import com.example.yoshida_makoto.kotlintest.query.*
@@ -32,5 +32,5 @@ interface AppComponent {
     fun inject(findNextMusicWithLoopQuery: FindNextMusicWithLoopQuery)
     fun inject(updatePlayListQuery: UpdatePlayListQuery)
     fun inject(sortPlayListQuery: SortPlayListQuery)
-    fun inject(controllableNotificationService: ControllableNotificationService)
+    fun inject(notificationPlayerPanelService: NotificationPlayerPanelService)
 }
