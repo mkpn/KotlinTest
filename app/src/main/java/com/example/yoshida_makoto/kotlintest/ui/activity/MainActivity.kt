@@ -6,6 +6,8 @@ import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.annotation.Nullable
 import android.support.v4.app.ActivityCompat
+import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -16,6 +18,7 @@ import com.example.yoshida_makoto.kotlintest.databinding.ActivityMainBinding
 import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.ui.fragment.MusicListFragment
 import com.example.yoshida_makoto.kotlintest.ui.fragment.PlayerFragment
+import com.example.yoshida_makoto.kotlintest.ui.fragment.UserPlayListFragment
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MainViewModel
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import io.reactivex.disposables.CompositeDisposable
@@ -26,6 +29,8 @@ class MainActivity : AppCompatActivity() {
     val disposables = CompositeDisposable()
     lateinit var playerFragment: PlayerFragment
     lateinit var musicListFragment: MusicListFragment
+    lateinit var userPlayListFragment: UserPlayListFragment
+    val tabTitles = arrayOf("Musics", "PlayLists")
     lateinit private var binding: ActivityMainBinding
     private val permissionCheck by lazy { ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) }
     private val MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1
@@ -98,15 +103,33 @@ class MainActivity : AppCompatActivity() {
     fun initialize() {
         Injector.component.inject(this)
         binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
-        playerFragment = PlayerFragment.newInstance()
         musicListFragment = MusicListFragment.newInstance()
+        userPlayListFragment = UserPlayListFragment.newInstance()
+        val fragments = arrayOf(musicListFragment, userPlayListFragment)
+
+        val adapter = object : FragmentPagerAdapter(supportFragmentManager){
+            override fun getCount(): Int {
+                return fragments.size
+            }
+
+            override fun getItem(position: Int): Fragment {
+                 return fragments[position]
+            }
+
+            override fun getPageTitle(position: Int): CharSequence {
+                return tabTitles[position]
+            }
+        }
+
+        binding.pager.adapter = adapter
+        binding.tabs.setupWithViewPager(binding.pager)
+
+        playerFragment = PlayerFragment.newInstance()
 
         supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.player_container, playerFragment)
-                .replace(R.id.music_list_fragment, musicListFragment)
                 .commit()
-
     }
 
     @OnShowRationale(Manifest.permission.READ_EXTERNAL_STORAGE)
