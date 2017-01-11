@@ -13,9 +13,10 @@
     </data>
 
     <com.sothree.slidinguppanel.SlidingUpPanelLayout
-        android:id="@+id/root"
+        android:id="@+id/sliding_up_panel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:panelState="@{vm.panelState}"
         android:gravity="bottom">
 
         <LinearLayout

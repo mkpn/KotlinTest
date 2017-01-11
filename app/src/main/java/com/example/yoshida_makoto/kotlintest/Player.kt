@@ -31,7 +31,6 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     val disposables = CompositeDisposable()
     val timeObservable = io.reactivex.Observable.interval(1, TimeUnit.SECONDS, Schedulers.newThread())!!
 
-
     val findNextMusicQuery = FindNextMusicQuery()
     val findNextMusicWithLoopQuery = FindNextMusicWithLoopQuery()
     val findPreviousMusicQuery = FindPreviousMusicQuery()

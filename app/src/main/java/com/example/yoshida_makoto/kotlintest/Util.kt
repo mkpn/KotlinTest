@@ -1,5 +1,6 @@
 package com.example.yoshida_makoto.kotlintest
 
+import android.content.res.Resources
 import java.util.concurrent.TimeUnit
 
 /**
@@ -12,6 +13,11 @@ class Util {
             val m = TimeUnit.MILLISECONDS.toMinutes(duration)
 
             return "%02d:%02d".format(m, s)
+        }
+
+        fun getDimenDip(resources: Resources, dimenId: Int) : Int{
+            val dimenAsPixel = resources.getDimension(dimenId)
+            return (dimenAsPixel/resources.displayMetrics.density).toInt()
         }
     }
 }

@@ -21,43 +21,51 @@
 
         <RelativeLayout android:id="@+id/music_label"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="@dimen/small_dip2">
+                        android:layout_height="@dimen/sliding_up_panel_height">
 
-            <TextView
-                android:id="@+id/music_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/label_play_button"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="@{vm.musicTitle}"
-                android:textColor="@color/white"
-                tools:text="music_title_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/>
+            <RelativeLayout android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="@dimen/small_dip2"
+                            android:layout_centerVertical="true">
 
-            <TextView
-                android:id="@+id/artist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_below="@id/music_title"
-                android:layout_toLeftOf="@+id/label_play_button"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="@{vm.artistName}"
-                android:textColor="@color/white"
-                tools:text="artist_name_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/>
+                <TextView
+                    android:id="@+id/music_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_toLeftOf="@+id/label_play_button"
+                    android:layout_marginBottom="@dimen/small_dip"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@{vm.musicTitle}"
+                    android:textColor="@color/white"
+                    tools:text="music_title_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/>
 
-            <ImageView
-                android:id="@+id/label_play_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:onClickListener="@{vm.playButtonClickListener}"
-                android:src="@drawable/ic_play_arrow_white_36dp"
-                android:textColor="@color/white"
-                bind:isContentsPlaying="@{vm.contentsIsPlaying}"/>
+                <TextView
+                    android:id="@+id/artist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@id/music_title"
+                    android:layout_toLeftOf="@+id/label_play_button"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@{vm.artistName}"
+                    android:textColor="@color/white"
+                    tools:text="artist_name_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/>
+
+                <ImageView
+                    android:id="@+id/label_play_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:onClickListener="@{vm.playButtonClickListener}"
+                    android:src="@drawable/ic_play_arrow_white_36dp"
+                    android:textColor="@color/white"
+                    bind:isContentsPlaying="@{vm.contentsIsPlaying}"/>
+
+            </RelativeLayout>
+
 
         </RelativeLayout>
 

@@ -13,12 +13,13 @@ import android.support.v7.widget.SearchView
 import android.view.Menu
 import com.example.yoshida_makoto.kotlintest.Messenger
 import com.example.yoshida_makoto.kotlintest.R
-import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.databinding.ActivityMainBinding
+import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.messages.ClickMusicMessage
 import com.example.yoshida_makoto.kotlintest.ui.decoration.DividerItemDecoration
 import com.example.yoshida_makoto.kotlintest.ui.fragment.PlayerFragment
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MainViewModel
+import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import permissions.dispatcher.*
@@ -55,6 +56,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
+    }
+
+    override fun onDestroy() {
+        disposables.dispose()
+        super.onDestroy()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,
@@ -121,6 +127,17 @@ class MainActivity : AppCompatActivity() {
     @OnNeverAskAgain(Manifest.permission.READ_EXTERNAL_STORAGE)
     fun showFuga() {
 
+    }
+
+    override fun onBackPressed() {
+        when (binding.slidingUpPanel.panelState) {
+            SlidingUpPanelLayout.PanelState.EXPANDED -> {
+                binding.slidingUpPanel.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
+            }
+            else -> {
+                super.onBackPressed()
+            }
+        }
     }
 }
 
