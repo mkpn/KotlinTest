@@ -11,36 +11,30 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SearchView
 import android.view.Menu
-import com.example.yoshida_makoto.kotlintest.Messenger
 import com.example.yoshida_makoto.kotlintest.R
 import com.example.yoshida_makoto.kotlintest.databinding.ActivityMainBinding
 import com.example.yoshida_makoto.kotlintest.di.Injector
-import com.example.yoshida_makoto.kotlintest.messages.ClickMusicMessage
-import com.example.yoshida_makoto.kotlintest.ui.decoration.DividerItemDecoration
+import com.example.yoshida_makoto.kotlintest.ui.fragment.MusicListFragment
 import com.example.yoshida_makoto.kotlintest.ui.fragment.PlayerFragment
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MainViewModel
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import permissions.dispatcher.*
-import javax.inject.Inject
 
 @RuntimePermissions
 class MainActivity : AppCompatActivity() {
     val disposables = CompositeDisposable()
-    lateinit var fragment: PlayerFragment
+    lateinit var playerFragment: PlayerFragment
+    lateinit var musicListFragment: MusicListFragment
     lateinit private var binding: ActivityMainBinding
     private val permissionCheck by lazy { ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) }
     private val MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1
 
     val mainVm = MainViewModel()
-    @Inject
-    lateinit var messenger: Messenger
 
     override fun onCreate(@Nullable savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MainActivityPermissionsDispatcher.initializeWithCheck(this)
-        binding.recyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST))
     }
 
     override fun onStart() {
@@ -87,7 +81,16 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.search, menu)
         val searchView = menu!!.findItem(R.id.action_search).actionView as SearchView
-        searchView.setOnQueryTextListener(mainVm.textChangeListener)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(query: String): Boolean {
+                musicListFragment.searchMusicByStringQuery(query)
+                return false
+            }
+        })
         return true
     }
 
@@ -95,19 +98,15 @@ class MainActivity : AppCompatActivity() {
     fun initialize() {
         Injector.component.inject(this)
         binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
-        fragment = PlayerFragment.newInstance()
+        playerFragment = PlayerFragment.newInstance()
+        musicListFragment = MusicListFragment.newInstance()
 
         supportFragmentManager
                 .beginTransaction()
-                .add(R.id.player_container, fragment)
+                .replace(R.id.player_container, playerFragment)
+                .replace(R.id.music_list_fragment, musicListFragment)
                 .commit()
 
-        disposables.add(messenger.register(ClickMusicMessage::class.java)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ message ->
-                    fragment.startMusic(message.songId)
-                })
-        )
     }
 
     @OnShowRationale(Manifest.permission.READ_EXTERNAL_STORAGE)

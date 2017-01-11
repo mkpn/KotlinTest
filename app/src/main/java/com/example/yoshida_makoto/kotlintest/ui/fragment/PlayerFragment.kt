@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.yoshida_makoto.kotlintest.R
 import com.example.yoshida_makoto.kotlintest.databinding.PlayerFragmentBinding
-import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.PlayerViewModel
 
 /**
@@ -34,7 +33,6 @@ class PlayerFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        Injector.component.inject(this)
         // vm.PlayMusicCommandみたいにするのが良さげ
         binding.vm = vm
     }
@@ -42,12 +40,5 @@ class PlayerFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         vm.disposables.dispose()
-    }
-
-    fun startMusic(musicId: Long){
-        vm.startMusicByTap(musicId)
-//        val serviceIntent = Intent(activity, NotificationPlayerPanelService::class.java)
-//        serviceIntent.action = PlayerServiceValues.SHOW_NOTIFICATION
-//        activity.startService(serviceIntent)
     }
 }
