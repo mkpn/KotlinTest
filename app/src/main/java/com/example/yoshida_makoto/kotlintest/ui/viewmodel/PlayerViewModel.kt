@@ -20,12 +20,6 @@ class PlayerViewModel() {
     @Inject
     lateinit var player: Player
 
-    // 画面が回転したりするとnullになるっぽい
-    // メモ ViewModelではこういうドメインに紐づくエンティティクラスを直接持たないほうがいい気がした。
-    // うっかり、ViewModelにmusicがないとPlayerで音楽再生ができないっていう罠にはまっていた
-    // プレイネクストとか、全部playerに命令を流して、そこからのイベントでハンドリングするべきだったように思えてきた。
-//    lateinit var music: Music
-
     val sortPlayListQuery = SortPlayListQuery()
     val disposables = CompositeDisposable()
 

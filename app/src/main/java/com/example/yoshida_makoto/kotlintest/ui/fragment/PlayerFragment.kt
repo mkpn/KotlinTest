@@ -16,8 +16,8 @@ class PlayerFragment : Fragment() {
     lateinit var binding: PlayerFragmentBinding
     val vm: PlayerViewModel = PlayerViewModel()
 
-    companion object{
-        fun newInstance(): PlayerFragment{
+    companion object {
+        fun newInstance(): PlayerFragment {
             return PlayerFragment()
         }
     }

@@ -11,7 +11,7 @@ import javax.inject.Inject
  * Musicsに対する、作成・更新の命令をするクラス
  * Created by yoshida_makoto on 2016/11/18.
  */
-class MusicsCommand() {
+class MusicsCommand {
     init {
         Injector.component.inject(this)
     }

@@ -151,6 +151,11 @@ class Player(val context: Context) : ExoPlayer.EventListener,
 
             ExoPlayer.STATE_ENDED -> {
                 exoPlayer.stop()
+
+                exoPlayer.seekTo(0)
+                currentProgressValueSubject.onNext(getCurrentPosition().toInt())
+                currentDurationSubject.onNext(getCurrentDurationString())
+
                 when (playMode.currentPlayMode.value) {
                     PlayMode.PlayMode.REPEAT_ALL -> {
                         findNextMusicWithLoopQuery.find(music.value)

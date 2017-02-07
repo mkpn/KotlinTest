@@ -8,11 +8,11 @@ import android.support.v4.app.NotificationCompat
 import android.widget.RemoteViews
 import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.value.PlayerServiceValues
-import com.example.yoshida_makoto.kotlintest.value.PlayerServiceValues.Companion.NOTIFICATION_ID
 import com.example.yoshida_makoto.kotlintest.value.PlayerServiceValues.Companion.PLAY_NEXT
 import com.example.yoshida_makoto.kotlintest.value.PlayerServiceValues.Companion.PLAY_PAUSE
 import com.example.yoshida_makoto.kotlintest.value.PlayerServiceValues.Companion.PLAY_PREVIOUS
 import com.example.yoshida_makoto.kotlintest.value.PlayerServiceValues.Companion.SHOW_NOTIFICATION
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 
@@ -23,13 +23,22 @@ import javax.inject.Inject
 class NotificationPlayerPanelService : Service() {
     @Inject
     lateinit var player: Player
+    val disposable = CompositeDisposable()
 
-    override fun onBind(intent: Intent): IBinder? {
+    override fun onCreate() {
         Injector.component.inject(this)
+        super.onCreate()
+    }
+
+    override fun onBind(intent: Intent?): IBinder? {
         return null
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        disposable.addAll(player.isPlaying.subscribe { isPlaying ->
+            showNotification()
+        })
+
         when (intent.action) {
             SHOW_NOTIFICATION -> {
                 showNotification()
@@ -74,10 +83,19 @@ class NotificationPlayerPanelService : Service() {
         views.setOnClickPendingIntent(R.id.play_button, playOrPausePendingIntent)
         bigViews.setOnClickPendingIntent(R.id.play_button, playOrPausePendingIntent)
 
-        val status = NotificationCompat.Builder(this)
-                .setCustomContentView(views)
-                .setCustomBigContentView(bigViews)
+        val notification = NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_repeat_one_white_36dp)
+                .setContentText("テキスト")
+                .setContentTitle("タイトル")
                 .build()
-        startForeground(NOTIFICATION_ID, status)
+
+//        val notification = NotificationCompat.Builder(this)
+//                .setSmallIcon(R.drawable.ic_repeat_one_white_36dp)
+//                .setCustomContentView(views)
+//                .setVibrate(longArrayOf(0))
+//                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+//                .build()
+
+//        startForeground(NOTIFICATION_ID, notification)
     }
 }

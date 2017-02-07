@@ -107,13 +107,13 @@ class MainActivity : AppCompatActivity() {
         userPlayListFragment = UserPlayListFragment.newInstance()
         val fragments = arrayOf(musicListFragment, userPlayListFragment)
 
-        val adapter = object : FragmentPagerAdapter(supportFragmentManager){
+        val adapter = object : FragmentPagerAdapter(supportFragmentManager) {
             override fun getCount(): Int {
                 return fragments.size
             }
 
             override fun getItem(position: Int): Fragment {
-                 return fragments[position]
+                return fragments[position]
             }
 
             override fun getPageTitle(position: Int): CharSequence {

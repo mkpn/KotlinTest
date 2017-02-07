@@ -1,6 +1,8 @@
 package com.example.yoshida_makoto.kotlintest
 
 import android.app.Application
+import android.content.Intent
+import android.util.Log
 
 import com.example.yoshida_makoto.kotlintest.di.AppComponent
 import com.example.yoshida_makoto.kotlintest.di.DaggerAppComponent
@@ -18,5 +20,8 @@ class MyApplication : Application() {
         super.onCreate()
         Realm.init(this)
         Injector.init(applicationComponent)
+        Log.d("デバッグ", "startService")
+        val intent = Intent(this, NotificationPlayerPanelService::class.java)
+        startService(intent)
     }
 }
