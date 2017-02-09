@@ -25,10 +25,11 @@ import java.util.concurrent.TimeUnit
  */
 class Player(val context: Context) : ExoPlayer.EventListener,
         TrackSelector.EventListener<MappingTrackSelector.MappedTrackInfo>,
-        PlaybackControlView.VisibilityListener {
+        PlaybackControlView.VisibilityListener, PlayerInterface {
 
     private val TAG = "Player"
     val disposables = CompositeDisposable()
+    val keyChangeDisposables = CompositeDisposable()
     val timeObservable = io.reactivex.Observable.interval(1, TimeUnit.SECONDS, Schedulers.newThread())!!
 
     val findNextMusicQuery = FindNextMusicQuery()
@@ -66,7 +67,15 @@ class Player(val context: Context) : ExoPlayer.EventListener,
         isPlaying.onNext(false)
         disposables.addAll(
                 findNextMusicQuery.musicSubject.subscribe { targetMusic ->
-                    startMusic(targetMusic)
+                    initializeMusic(targetMusic)
+                    playMusic()
+                },
+                findNextMusicQuery.allMusicPlayFinishSubject.subscribe { unit ->
+                    stop()
+                },
+                findNextMusicWithLoopQuery.musicSubject.subscribe { targetMusic ->
+                    initializeMusic(targetMusic)
+                    playMusic()
                 },
                 findMusicByIdQuery.musicSubject
                         .filter { targetMusic ->
@@ -74,37 +83,92 @@ class Player(val context: Context) : ExoPlayer.EventListener,
                             !isPlaying.value || playingMusicId != targetMusic.id
                         }
                         .subscribe { targetMusic ->
-                            startMusic(targetMusic)
+                            initializeMusic(targetMusic)
+                            playMusic()
                         },
                 findPreviousMusicQuery.musicSubject.subscribe { targetMusic ->
-                    startMusic(targetMusic)
+                    initializeMusic(targetMusic)
+                    playMusic()
                 },
                 findPreviousMusicQuery.musicSubject.subscribe { targetMusic ->
-                    startMusic(targetMusic)
+                    initializeMusic(targetMusic)
+                    playMusic()
                 }
         )
+        exoPlayer.addListener(this)
     }
 
-    fun generatePitchFrequency(key: Double): Float {
-        return Math.pow(2.0, key / 12).toFloat()
-    }
 
-    fun startMusic(music: Music) {
+    override fun initializeMusic(music: Music) {
+        exoPlayer.stop()
         this.music.onNext(music)
-        disposables.add(
+        updatePlayState(music.key.toDouble())
+        keyChangeDisposables.clear()
+        keyChangeDisposables.add(
                 music.keySubject.subscribe { key ->
                     updatePlayState(key.toDouble())
                     keyChangeSubject.onNext(key)
                     musicsCommand.updateOrCreateMusic(music.id)
                 }
         )
+
         currentAudioResource = exoPlayer.createAudioSource(context, music.id)
-        // Prepare the player with the source.
-        // play to play music
-        exoPlayer.addListener(this)
-        exoPlayer.prepare(currentAudioResource)
         playingMusicId = music.id
-        updatePlayState(music.key.toDouble())
+        exoPlayer.prepare(currentAudioResource)
+    }
+
+    override fun pause() {
+        isPlaying.onNext(false)
+        exoPlayer.playWhenReady = false
+    }
+
+    override fun stop() {
+        exoPlayer.stop()
+    }
+
+    override fun skipToNext() {
+        when (playMode.currentPlayMode.value) {
+            PlayMode.PlayMode.REPEAT_ALL -> {
+                findNextMusicWithLoopQuery.find(music.value)
+            }
+            else -> {
+                findNextMusicQuery.find(music.value)
+            }
+        }
+    }
+
+    override fun goToHeadOrPrevious() {
+        // 3.5秒を閾値として、曲の最初に戻るか、前の曲を再生するかの処理に分かれる
+        if (exoPlayer.currentPosition > 3500) {
+            exoPlayer.seekTo(0)
+        } else {
+            findPreviousMusicQuery.find(music.value)
+        }
+    }
+
+    override fun playNextWithOutLoop() {
+        findNextMusicQuery.find(music.value)
+    }
+
+    override fun playNextWithLoop() {
+        findNextMusicWithLoopQuery.find(music.value)
+    }
+
+    override fun keyUp() {
+        music.value.changeKey(1)
+    }
+
+    override fun keyDown() {
+        music.value.changeKey(-1)
+    }
+
+    fun generatePitchFrequency(key: Double): Float {
+        return Math.pow(2.0, key / 12).toFloat()
+    }
+
+    fun playMusic() {
+        isPlaying.onNext(true)
+        exoPlayer.playWhenReady = true
     }
 
     fun updatePlayState(key: Double) {
@@ -150,21 +214,18 @@ class Player(val context: Context) : ExoPlayer.EventListener,
             }
 
             ExoPlayer.STATE_ENDED -> {
-                exoPlayer.stop()
-
-                exoPlayer.seekTo(0)
+                seekTo(0)
                 currentProgressValueSubject.onNext(getCurrentPosition().toInt())
                 currentDurationSubject.onNext(getCurrentDurationString())
 
                 when (playMode.currentPlayMode.value) {
                     PlayMode.PlayMode.REPEAT_ALL -> {
-                        findNextMusicWithLoopQuery.find(music.value)
+                        playNextWithLoop()
                     }
                     PlayMode.PlayMode.REPEAT_ONE -> {
-                        startMusic(music.value)
                     }
                     else -> {
-                        findNextMusicQuery.find(music.value)
+                        playNextWithOutLoop()
                     }
                 }
             }
@@ -181,7 +242,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     override fun onPositionDiscontinuity() {
-        Log.d("デバッグ onPositionDis...", "よくわからん")
+        Log.d("デバッグ onPositionDis...", "シークバーなどで再生箇所がジャンプした時")
     }
 
     override fun onTimelineChanged(timeline: Timeline?, manifest: Any?) {
@@ -248,32 +309,18 @@ class Player(val context: Context) : ExoPlayer.EventListener,
         playMode.switchNextMode()
     }
 
-    fun goToHeadOrPrevious() {
-        // 3.5秒を閾値として、曲の最初に戻るか、前の曲を再生するかの処理に分かれる
-        if (exoPlayer.currentPosition > 3500) {
-            exoPlayer.seekTo(0)
-        } else {
-            findPreviousMusicQuery.find(music.value)
-        }
-    }
-
     fun changePitch(changeValue: Int) {
         music.value.changeKey(changeValue)
     }
 
-    fun skipToNext() {
-        when (playMode.currentPlayMode.value) {
-            PlayMode.PlayMode.REPEAT_ALL -> {
-                findNextMusicWithLoopQuery.find(music.value)
+    fun playOrPause() {
+        when (isPlaying.value) {
+            true -> {
+                pause()
             }
-            else -> {
-                findNextMusicQuery.find(music.value)
+            false -> {
+                playMusic()
             }
         }
-    }
-
-    fun playOrPause() {
-        exoPlayer.playWhenReady = !isPlaying.value
-        isPlaying.onNext(exoPlayer.playWhenReady)
     }
 }

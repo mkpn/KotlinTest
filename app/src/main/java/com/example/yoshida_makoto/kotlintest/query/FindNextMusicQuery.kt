@@ -18,6 +18,7 @@ class FindNextMusicQuery() {
     lateinit var musicsRepository: MusicsRepository
 
     val musicSubject = musicsRepository.nextMusicSubject
+    val allMusicPlayFinishSubject = musicsRepository.allMusicPlayFinishSubject
 
     fun find(music: Music) {
         musicsRepository.findNextMusicFromPlayList(music)

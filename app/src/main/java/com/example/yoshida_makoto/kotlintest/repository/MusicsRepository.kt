@@ -32,6 +32,7 @@ class MusicsRepository(val contentResolver: ContentResolver) {
     val findMusicSubject = PublishSubject.create<Music>()
     val nextMusicSubject = PublishSubject.create<Music>()
     val previousMusicSubject = PublishSubject.create<Music>()
+    val allMusicPlayFinishSubject = PublishSubject.create<Unit>()
 
     init {
         initializeMusics() // 初期化時、全楽曲を取得する
@@ -117,6 +118,8 @@ class MusicsRepository(val contentResolver: ContentResolver) {
             targetIndex = currentPlayList.indexOf(music) + 1
             val nextMusic = currentPlayList.get(targetIndex)
             nextMusicSubject.onNext(nextMusic)
+        } else {
+            allMusicPlayFinishSubject.onNext(Unit)
         }
     }
 
