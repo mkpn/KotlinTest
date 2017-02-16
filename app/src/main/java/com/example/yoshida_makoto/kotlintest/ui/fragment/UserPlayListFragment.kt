@@ -6,16 +6,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.yoshida_makoto.kotlintest.R
-import com.example.yoshida_makoto.kotlintest.databinding.MusicListFragmentBinding
-import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MusicListFragmentViewModel
+import com.example.yoshida_makoto.kotlintest.databinding.UserPlayListFragmentBinding
+import com.example.yoshida_makoto.kotlintest.ui.AddPlayListMenuDialog
+import com.example.yoshida_makoto.kotlintest.ui.viewmodel.UserPlayListFragmentViewModel
 import io.reactivex.disposables.CompositeDisposable
 
 /**
  * Created by yoshida_makoto on 2016/12/16.
  */
 class UserPlayListFragment : Fragment() {
-    lateinit var binding: MusicListFragmentBinding
-    val vm: MusicListFragmentViewModel = MusicListFragmentViewModel()
+    lateinit var binding: UserPlayListFragmentBinding
+    val vm: UserPlayListFragmentViewModel = UserPlayListFragmentViewModel()
     val disposables = CompositeDisposable()
 
     companion object {
@@ -26,6 +27,11 @@ class UserPlayListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        disposables.addAll(
+                vm.showAddPlayListMenuSubject.subscribe{unit ->
+                    AddPlayListMenuDialog(activity).show()
+                }
+        )
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -34,13 +40,12 @@ class UserPlayListFragment : Fragment() {
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        binding = MusicListFragmentBinding.bind(view)
-//        binding.recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL_LIST))
+        binding = UserPlayListFragmentBinding.bind(view)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-//        binding.vm = vm
+        binding.vm = vm
     }
 
     override fun onDestroy() {

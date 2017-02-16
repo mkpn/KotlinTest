@@ -1,8 +1,10 @@
 package com.example.yoshida_makoto.kotlintest
 
+import android.content.ContentUris
 import android.content.Context
 import android.media.PlaybackParams
 import android.os.Handler
+import android.provider.MediaStore
 import android.util.Log
 import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
 import com.example.yoshida_makoto.kotlintest.di.Injector
@@ -10,10 +12,12 @@ import com.example.yoshida_makoto.kotlintest.entity.Music
 import com.example.yoshida_makoto.kotlintest.query.*
 import com.example.yoshida_makoto.kotlintest.value.PlayMode
 import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.trackselection.*
 import com.google.android.exoplayer2.ui.PlaybackControlView
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -71,7 +75,8 @@ class Player(val context: Context) : ExoPlayer.EventListener,
                     playMusic()
                 },
                 findNextMusicQuery.allMusicPlayFinishSubject.subscribe { unit ->
-                    stop()
+                    //                    stop()
+                    pause()
                 },
                 findNextMusicWithLoopQuery.musicSubject.subscribe { targetMusic ->
                     initializeMusic(targetMusic)
@@ -98,9 +103,8 @@ class Player(val context: Context) : ExoPlayer.EventListener,
         exoPlayer.addListener(this)
     }
 
-
     override fun initializeMusic(music: Music) {
-        exoPlayer.stop()
+        stop()
         this.music.onNext(music)
         updatePlayState(music.key.toDouble())
         keyChangeDisposables.clear()
@@ -112,7 +116,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
                 }
         )
 
-        currentAudioResource = exoPlayer.createAudioSource(context, music.id)
+        currentAudioResource = createAudioSource(context, music.id)
         playingMusicId = music.id
         exoPlayer.prepare(currentAudioResource)
     }
@@ -322,5 +326,17 @@ class Player(val context: Context) : ExoPlayer.EventListener,
                 playMusic()
             }
         }
+    }
+
+    fun createAudioSource(context: Context, musicId: Long): ExtractorMediaSource {
+        val defaultBandwidthMeter = DefaultBandwidthMeter()
+        val dataSourceFactory = DefaultDataSourceFactory(context,
+                com.google.android.exoplayer2.util.Util.getUserAgent(context, context.getString(R.string.app_name)), defaultBandwidthMeter)
+        // Produces Extractor instances for parsing the media data.
+        val extractorsFactory = DefaultExtractorsFactory()
+        val trackUri = ContentUris.withAppendedId(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, musicId)
+        // This is the MediaSource representing the media to be played.
+        return ExtractorMediaSource(trackUri, dataSourceFactory, extractorsFactory, null, null)
     }
 }

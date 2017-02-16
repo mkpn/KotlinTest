@@ -4,8 +4,10 @@ import com.example.yoshida_makoto.kotlintest.NotificationPlayerPanelService
 import com.example.yoshida_makoto.kotlintest.Player
 import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
 import com.example.yoshida_makoto.kotlintest.query.*
+import com.example.yoshida_makoto.kotlintest.repository.MusicsRepository
 import com.example.yoshida_makoto.kotlintest.ui.activity.MainActivity
 import com.example.yoshida_makoto.kotlintest.ui.adapter.MusicListAdapter
+import com.example.yoshida_makoto.kotlintest.ui.adapter.UserPlayListAdapter
 import com.example.yoshida_makoto.kotlintest.ui.fragment.MusicListFragment
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MainViewModel
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MusicListFragmentViewModel
@@ -35,4 +37,6 @@ interface AppComponent {
     fun inject(notificationPlayerPanelService: NotificationPlayerPanelService)
     fun inject(musicListFragmentViewModel: MusicListFragmentViewModel)
     fun inject(musicListFragment: MusicListFragment)
+    fun inject(userPlayListAdapter: UserPlayListAdapter)
+    fun inject(musicsRepository: MusicsRepository)
 }

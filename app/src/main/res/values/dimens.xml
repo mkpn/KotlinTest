@@ -6,6 +6,7 @@
     <dimen name="big_text">16sp</dimen>
     <dimen name="small_dip">4dp</dimen>
     <dimen name="small_dip2">8dp</dimen>
+    <dimen name="big_dip">16dp</dimen>
     <dimen name="control_button_size">44dp</dimen>
     <dimen name="control_button_space">24dp</dimen>
     <dimen name="sliding_up_panel_height">68dp</dimen>

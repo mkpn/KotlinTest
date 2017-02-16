@@ -1,12 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:bind="http://schemas.android.com/tools">
 
-    <TextView
+    <data>
+        <import
+            type="com.example.yoshida_makoto.kotlintest.ui.viewmodel.UserPlayListFragmentViewModel"/>
+
+        <variable
+            name="vm"
+            type="UserPlayListFragmentViewModel"/>
+    </data>
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="絶賛作成中"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-</LinearLayout>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            bind:dividerFor="vertical"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="16dp"
+            android:layout_marginRight="16dp"
+            android:background="@drawable/ripple"
+            android:onClickListener="@{vm.addButtonClickListener}"
+            android:src="@drawable/ic_add_white_24dp"/>
+
+    </RelativeLayout>
+
+</layout>

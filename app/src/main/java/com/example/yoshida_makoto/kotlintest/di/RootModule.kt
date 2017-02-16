@@ -13,5 +13,5 @@ import javax.inject.Singleton
 class RootModule(val application: MyApplication){
     @Provides
     @Singleton
-    fun provideApplicaitonContext(): Context = application.applicationContext
+    fun provideApplicationContext(): Context = application.applicationContext
 }

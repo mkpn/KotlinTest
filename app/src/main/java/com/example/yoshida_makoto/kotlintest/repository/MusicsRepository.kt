@@ -5,19 +5,23 @@ import android.databinding.ObservableArrayList
 import android.provider.MediaStore
 import com.example.yoshida_makoto.kotlintest.MyError
 import com.example.yoshida_makoto.kotlintest.MySuccess
+import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.entity.Music
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import io.realm.Realm
 import java.util.*
+import javax.inject.Inject
 
 /**
  * Created by yoshida_makoto on 2016/11/11.
  */
 class MusicsRepository(val contentResolver: ContentResolver) {
 
-    val realm = Realm.getDefaultInstance()
+    @Inject
+    lateinit var realm : Realm
+
     // 端末内の音楽保持しておく
     val masterMusics: ObservableArrayList<Music> = ObservableArrayList()
 
@@ -35,6 +39,7 @@ class MusicsRepository(val contentResolver: ContentResolver) {
     val allMusicPlayFinishSubject = PublishSubject.create<Unit>()
 
     init {
+        Injector.component.inject(this)
         initializeMusics() // 初期化時、全楽曲を取得する
     }
 

@@ -10,7 +10,7 @@ import javax.inject.Inject
  * Musicに対して、副作用のない命令(readだけになるかも)をするクラス
  * Created by yoshida_makoto on 2016/11/18.
  */
-class SearchMusicsByStringQuery() {
+class SearchMusicsByStringQuery {
     init {
         Injector.component.inject(this)
     }

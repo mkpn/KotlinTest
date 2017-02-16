@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">KotlinTest</string>
     <string name="action_search">検索</string>
+    <string name="cancel">キャンセル</string>
+    <string name="create">作　成</string>
+    <string name="enter_play_list_name">プレイリスト名を入力してください</string>
 </resources>

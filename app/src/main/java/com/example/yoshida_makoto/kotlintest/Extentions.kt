@@ -1,23 +1,15 @@
 package com.example.yoshida_makoto.kotlintest
 
-import android.content.ContentUris
-import android.content.Context
 import android.databinding.BindingAdapter
 import android.databinding.ObservableArrayList
-import android.provider.MediaStore
 import android.support.v7.widget.RecyclerView
 import android.widget.ImageView
 import android.widget.TextView
 import com.example.yoshida_makoto.kotlintest.entity.Music
+import com.example.yoshida_makoto.kotlintest.entity.UserPlayList
 import com.example.yoshida_makoto.kotlintest.ui.adapter.MusicListAdapter
 import com.example.yoshida_makoto.kotlintest.ui.decoration.DividerItemDecoration
 import com.example.yoshida_makoto.kotlintest.value.PlayMode
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
-import com.google.android.exoplayer2.source.ExtractorMediaSource
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
 
 /**
  * Created by yoshida_makoto on 2016/11/14.
@@ -28,9 +20,21 @@ fun RecyclerView.setMusicList(musics: ObservableArrayList<Music>) {
     musics.addOnListChangedCallback(ObservableListCallback(adapter))
 }
 
+@BindingAdapter("playList")
+fun RecyclerView.setPlayList(playLists: ObservableArrayList<UserPlayList>) {
+
+}
+
 @BindingAdapter("dividerFor")
-fun RecyclerView.setDividerFor(orientation: Int) {
-    this.addItemDecoration(DividerItemDecoration(this.context, orientation))
+fun RecyclerView.setDividerFor(param: String) {
+    when (param) {
+        "horizontal" -> {
+            this.addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.HORIZONTAL_LIST))
+        }
+        else -> {
+            this.addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL_LIST))
+        }
+    }
 }
 
 @BindingAdapter("keyText")
@@ -76,16 +80,4 @@ fun ImageView.setShuffle(isShuffle: Boolean) {
     } else {
         this.setImageResource(R.drawable.ic_shuffle_off_36dp)
     }
-}
-
-fun ExoPlayer.createAudioSource(context: Context, musicId: Long): ExtractorMediaSource {
-    val defaultBandwidthMeter = DefaultBandwidthMeter()
-    val dataSourceFactory = DefaultDataSourceFactory(context,
-            Util.getUserAgent(context, context.getString(R.string.app_name)), defaultBandwidthMeter)
-    // Produces Extractor instances for parsing the media data.
-    val extractorsFactory = DefaultExtractorsFactory()
-    val trackUri = ContentUris.withAppendedId(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, musicId)
-    // This is the MediaSource representing the media to be played.
-    return ExtractorMediaSource(trackUri, dataSourceFactory, extractorsFactory, null, null)
 }

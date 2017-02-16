@@ -1,6 +1,7 @@
 package com.example.yoshida_makoto.kotlintest.ui.activity
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.databinding.DataBindingUtil
 import android.os.Bundle
@@ -13,6 +14,7 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SearchView
 import android.view.Menu
+import com.example.yoshida_makoto.kotlintest.NotificationPlayerPanelService
 import com.example.yoshida_makoto.kotlintest.R
 import com.example.yoshida_makoto.kotlintest.databinding.ActivityMainBinding
 import com.example.yoshida_makoto.kotlintest.di.Injector
@@ -21,12 +23,10 @@ import com.example.yoshida_makoto.kotlintest.ui.fragment.PlayerFragment
 import com.example.yoshida_makoto.kotlintest.ui.fragment.UserPlayListFragment
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MainViewModel
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
-import io.reactivex.disposables.CompositeDisposable
 import permissions.dispatcher.*
 
 @RuntimePermissions
 class MainActivity : AppCompatActivity() {
-    val disposables = CompositeDisposable()
     lateinit var playerFragment: PlayerFragment
     lateinit var musicListFragment: MusicListFragment
     lateinit var userPlayListFragment: UserPlayListFragment
@@ -34,8 +34,6 @@ class MainActivity : AppCompatActivity() {
     lateinit private var binding: ActivityMainBinding
     private val permissionCheck by lazy { ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) }
     private val MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1
-
-    val mainVm = MainViewModel()
 
     override fun onCreate(@Nullable savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +43,9 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            binding.vm = mainVm
+            binding.vm = MainViewModel()
+            val intent = Intent(this, NotificationPlayerPanelService::class.java)
+            startService(intent)
         } else {
             ActivityCompat.requestPermissions(this,
                     arrayOf<String>(Manifest.permission.READ_EXTERNAL_STORAGE),
@@ -58,7 +58,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        disposables.dispose()
         super.onDestroy()
     }
 
@@ -69,11 +68,12 @@ class MainActivity : AppCompatActivity() {
             MY_PERMISSIONS_REQUEST_READ_CONTACTS -> {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    binding.vm = mainVm
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
+                    val intent = Intent(this, NotificationPlayerPanelService::class.java)
+                    startService(intent)
+                    binding.vm = MainViewModel()
                 } else {
-
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }

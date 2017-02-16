@@ -17,8 +17,7 @@ import javax.inject.Inject
 /**
  * Created by yoshida_makoto on 2016/11/14.
  */
-// TODO permissionCheckerもらわないとだめかも
-class MusicListFragmentViewModel() {
+class MusicListFragmentViewModel {
     val musicsCommand = MusicsCommand()
     val searchMusicsByStringQuery = SearchMusicsByStringQuery()
     val musics = searchMusicsByStringQuery.searchMusicsByString("") // 初期化

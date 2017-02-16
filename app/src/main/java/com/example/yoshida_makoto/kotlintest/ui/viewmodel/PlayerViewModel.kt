@@ -16,7 +16,7 @@ import javax.inject.Inject
 /**
  * Created by yoshida_makoto on 2016/11/18.
  */
-class PlayerViewModel() {
+class PlayerViewModel {
     @Inject
     lateinit var player: Player
 

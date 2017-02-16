@@ -9,10 +9,10 @@ import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 /**
+ * 音楽再生時のslideUpPanelの制御をしてる
  * Created by yoshida_makoto on 2016/11/14.
  */
-// TODO permissionCheckerもらわないとだめかも
-class MainViewModel() {
+class MainViewModel {
     val disposables = CompositeDisposable()
 
     val panelState = ObservableField<SlidingUpPanelLayout.PanelState>(PanelState.HIDDEN)

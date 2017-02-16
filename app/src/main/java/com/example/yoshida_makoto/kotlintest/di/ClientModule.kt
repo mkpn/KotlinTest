@@ -7,6 +7,7 @@ import com.example.yoshida_makoto.kotlintest.Player
 import com.example.yoshida_makoto.kotlintest.repository.MusicsRepository
 import dagger.Module
 import dagger.Provides
+import io.realm.Realm
 import javax.inject.Singleton
 
 /**
@@ -28,4 +29,14 @@ class ClientModule {
     @Provides
     @Singleton
     fun provideMessenger(): Messenger = Messenger()
+
+    @Provides
+    fun provideRealm(): Realm {
+//        val config = RealmConfiguration
+//                .Builder()
+//                .schemaVersion(3)
+//                .migration(Migration())
+//                .build()
+        return Realm.getDefaultInstance()
+    }
 }
