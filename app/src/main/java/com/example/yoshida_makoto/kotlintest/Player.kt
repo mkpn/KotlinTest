@@ -8,8 +8,10 @@ import android.provider.MediaStore
 import android.util.Log
 import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
 import com.example.yoshida_makoto.kotlintest.di.Injector
+import com.example.yoshida_makoto.kotlintest.domain.FindNextMusicUseCase
+import com.example.yoshida_makoto.kotlintest.domain.FindNextMusicWithLoopUseCase
+import com.example.yoshida_makoto.kotlintest.domain.FindPreviousMusicUseCase
 import com.example.yoshida_makoto.kotlintest.entity.Music
-import com.example.yoshida_makoto.kotlintest.query.*
 import com.example.yoshida_makoto.kotlintest.value.PlayMode
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
@@ -36,11 +38,9 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     val keyChangeDisposables = CompositeDisposable()
     val timeObservable = io.reactivex.Observable.interval(1, TimeUnit.SECONDS, Schedulers.newThread())!!
 
-    val findNextMusicQuery = FindNextMusicQuery()
-    val findNextMusicWithLoopQuery = FindNextMusicWithLoopQuery()
-    val findPreviousMusicQuery = FindPreviousMusicQuery()
-    val findMusicByIdQuery = FindMusicByIdQuery()
-    val updatePlayListQuery = UpdatePlayListQuery()
+    val findNextMusicQuery = FindNextMusicUseCase()
+    val findNextMusicWithLoopQuery = FindNextMusicWithLoopUseCase()
+    val findPreviousMusicUseCase = FindPreviousMusicUseCase()
 
     val musicsCommand = MusicsCommand()
     val music = BehaviorSubject.create<Music>()
@@ -82,20 +82,11 @@ class Player(val context: Context) : ExoPlayer.EventListener,
                     initializeMusic(targetMusic)
                     playMusic()
                 },
-                findMusicByIdQuery.musicSubject
-                        .filter { targetMusic ->
-                            // 同じ曲を再生中の時はstartMusicしない
-                            !isPlaying.value || playingMusicId != targetMusic.id
-                        }
-                        .subscribe { targetMusic ->
-                            initializeMusic(targetMusic)
-                            playMusic()
-                        },
-                findPreviousMusicQuery.musicSubject.subscribe { targetMusic ->
+                findPreviousMusicUseCase.musicSubject.subscribe { targetMusic ->
                     initializeMusic(targetMusic)
                     playMusic()
                 },
-                findPreviousMusicQuery.musicSubject.subscribe { targetMusic ->
+                findPreviousMusicUseCase.musicSubject.subscribe { targetMusic ->
                     initializeMusic(targetMusic)
                     playMusic()
                 }
@@ -131,6 +122,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     override fun skipToNext() {
+        Log.d("デバッグ", "skipToNext")
         when (playMode.currentPlayMode.value) {
             PlayMode.PlayMode.REPEAT_ALL -> {
                 findNextMusicWithLoopQuery.find(music.value)
@@ -146,7 +138,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
         if (exoPlayer.currentPosition > 3500) {
             exoPlayer.seekTo(0)
         } else {
-            findPreviousMusicQuery.find(music.value)
+            findPreviousMusicUseCase.find(music.value)
         }
     }
 
@@ -158,14 +150,6 @@ class Player(val context: Context) : ExoPlayer.EventListener,
         findNextMusicWithLoopQuery.find(music.value)
     }
 
-    override fun keyUp() {
-        music.value.changeKey(1)
-    }
-
-    override fun keyDown() {
-        music.value.changeKey(-1)
-    }
-
     fun generatePitchFrequency(key: Double): Float {
         return Math.pow(2.0, key / 12).toFloat()
     }
@@ -173,6 +157,11 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     fun playMusic() {
         isPlaying.onNext(true)
         exoPlayer.playWhenReady = true
+    }
+
+    fun playMusic(music: Music) {
+        initializeMusic(music)
+        playMusic()
     }
 
     fun updatePlayState(key: Double) {
@@ -234,11 +223,6 @@ class Player(val context: Context) : ExoPlayer.EventListener,
                 }
             }
         }
-    }
-
-    fun startMusicById(musicId: Long) {
-        updatePlayListQuery.update()
-        findMusicByIdQuery.findMusic(musicId)
     }
 
     override fun onLoadingChanged(isLoading: Boolean) {
@@ -309,8 +293,8 @@ class Player(val context: Context) : ExoPlayer.EventListener,
         return builder.toString()
     }
 
-    fun setNextPlayMode() {
-        playMode.switchNextMode()
+    fun switchPlayMode() {
+        playMode.switchPlayMode()
     }
 
     fun changePitch(changeValue: Int) {

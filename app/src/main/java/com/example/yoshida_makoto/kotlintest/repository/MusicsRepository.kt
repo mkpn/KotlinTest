@@ -3,6 +3,7 @@ package com.example.yoshida_makoto.kotlintest.repository
 import android.content.ContentResolver
 import android.databinding.ObservableArrayList
 import android.provider.MediaStore
+import android.util.Log
 import com.example.yoshida_makoto.kotlintest.MyError
 import com.example.yoshida_makoto.kotlintest.MySuccess
 import com.example.yoshida_makoto.kotlintest.di.Injector
@@ -20,7 +21,7 @@ import javax.inject.Inject
 class MusicsRepository(val contentResolver: ContentResolver) {
 
     @Inject
-    lateinit var realm : Realm
+    lateinit var realm: Realm
 
     // 端末内の音楽保持しておく
     val masterMusics: ObservableArrayList<Music> = ObservableArrayList()
@@ -40,21 +41,8 @@ class MusicsRepository(val contentResolver: ContentResolver) {
 
     init {
         Injector.component.inject(this)
-        initializeMusics() // 初期化時、全楽曲を取得する
-    }
 
-    // keyの変更とか、musicに対してuserが何か更新した時はrealmに保存する
-    fun updateOrCreateMusic(musicId: Long) {
-        Observable.fromIterable(masterMusics)
-                .filter { music -> music.id.equals(musicId) }
-                .subscribe { music ->
-                    realm.beginTransaction()
-                    realm.copyToRealmOrUpdate(music)
-                    realm.commitTransaction()
-                }
-    }
-
-    fun initializeMusics() {
+        // 初期化時、全楽曲を取得する
         //全音楽を取得し、musicsにaddする
         Observable.create<ObservableArrayList<Music>> { emitter ->
             val musicResolver = contentResolver
@@ -82,7 +70,20 @@ class MusicsRepository(val contentResolver: ContentResolver) {
             }
         }
                 .doOnError { throwable -> errorStream.onNext(MyError()) }
-                .subscribe { musics -> successStream.onNext(MySuccess()) }
+                .subscribe { musics ->
+                    Log.d("デバッグ", "masterMusics.size after initialize is ${masterMusics.size}")
+                    successStream.onNext(MySuccess()) }
+    }
+
+    // keyの変更とか、musicに対してuserが何か更新した時はrealmに保存する
+    fun updateOrCreateMusic(musicId: Long) {
+        Observable.fromIterable(masterMusics)
+                .filter { music -> music.id.equals(musicId) }
+                .subscribe { music ->
+                    realm.beginTransaction()
+                    realm.copyToRealmOrUpdate(music)
+                    realm.commitTransaction()
+                }
     }
 
     fun searchMusicsByString(query: String): ObservableArrayList<Music> {
@@ -91,6 +92,7 @@ class MusicsRepository(val contentResolver: ContentResolver) {
             if (music.isContainsString(query)) targetMusics.add(music)
         }
         targetMusics.sortBy { music -> music.title }
+        Log.d("デバッグ", "targetMusics.size after initialize is ${targetMusics.size}")
         return targetMusics
     }
 
@@ -108,7 +110,7 @@ class MusicsRepository(val contentResolver: ContentResolver) {
         currentPlayList = targetMusics
     }
 
-    fun findSongById(musicId: Long) {
+    fun findMusicById(musicId: Long) {
         masterMusics.forEach { music ->
             if (music.id == musicId) {
                 findMusicSubject.onNext(music)
@@ -119,7 +121,7 @@ class MusicsRepository(val contentResolver: ContentResolver) {
 
     fun findNextMusicFromPlayList(music: Music) {
         val targetIndex: Int
-        if (currentPlayList.indexOf(music) != currentPlayList.size - 1) {
+        if (music != currentPlayList.last()) {
             targetIndex = currentPlayList.indexOf(music) + 1
             val nextMusic = currentPlayList.get(targetIndex)
             nextMusicSubject.onNext(nextMusic)
@@ -152,6 +154,9 @@ class MusicsRepository(val contentResolver: ContentResolver) {
                 targetIndex = currentPlayList.indexOf(music) + 1
             }
         }
+        Log.d("デバッグ", "currentPlayList size is " + currentPlayList.size)
+        Log.d("デバッグ", "target index is " + targetIndex)
+
         val nextMusic = currentPlayList.get(targetIndex)
         nextMusicSubject.onNext(nextMusic)
     }

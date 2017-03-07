@@ -1,4 +1,4 @@
-package com.example.yoshida_makoto.kotlintest.query
+package com.example.yoshida_makoto.kotlintest.domain
 
 import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.entity.Music
@@ -9,7 +9,7 @@ import javax.inject.Inject
  * Musicに対して、副作用のない命令(readだけになるかも)をするクラス
  * Created by yoshida_makoto on 2016/11/18.
  */
-class FindPreviousMusicQuery {
+class FindNextMusicWithLoopUseCase {
     init {
         Injector.component.inject(this)
     }
@@ -17,9 +17,9 @@ class FindPreviousMusicQuery {
     @Inject
     lateinit var musicsRepository: MusicsRepository
 
-    val musicSubject = musicsRepository.previousMusicSubject
+    val musicSubject = musicsRepository.nextMusicSubject
 
     fun find(music: Music) {
-        musicsRepository.findPreviousMusicFromPlayList(music)
+        musicsRepository.findNextMusicWithLoopFromPlayList(music)
     }
 }

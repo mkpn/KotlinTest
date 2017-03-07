@@ -8,7 +8,7 @@ import android.widget.SeekBar
 import com.example.yoshida_makoto.kotlintest.Player
 import com.example.yoshida_makoto.kotlintest.Util
 import com.example.yoshida_makoto.kotlintest.di.Injector
-import com.example.yoshida_makoto.kotlintest.query.SortPlayListQuery
+import com.example.yoshida_makoto.kotlintest.domain.*
 import com.example.yoshida_makoto.kotlintest.value.PlayMode
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
@@ -20,7 +20,6 @@ class PlayerViewModel {
     @Inject
     lateinit var player: Player
 
-    val sortPlayListQuery = SortPlayListQuery()
     val disposables = CompositeDisposable()
 
     val musicTitle = ObservableField<String>("")
@@ -34,6 +33,12 @@ class PlayerViewModel {
     val isShuffle = ObservableBoolean(false)
     val contentsIsPlaying = ObservableBoolean(true)
     var isSeekBarMovable = true
+    val playOrPauseUseCase = PlayOrPauseMusicUseCase()
+    val keyChangeUseCase = MusicKeyChangeUseCase()
+    val skipMusicUsecase = SkipMusicUseCase()
+    val goToHeadOrPreviousUseCase = GoToHeadOrPreviousUseCase()
+    val switchPlayModeUseCase = SwitchPlayModeUseCase()
+    val sortPlayListUseCase = SortPlayListUseCase()
 
     init {
         Injector.component.inject(this)
@@ -71,11 +76,6 @@ class PlayerViewModel {
         )
     }
 
-    // 音楽リストのタップ動作で再生を開始する
-    fun startMusicByTap(musicId: Long) {
-        player.startMusicById(musicId)
-    }
-
     val seekBarTouchListener = View.OnTouchListener { view, motionEvent ->
         when (motionEvent.action) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_BUTTON_PRESS -> {
@@ -103,32 +103,32 @@ class PlayerViewModel {
     }
 
     val pitchUpClickListener = View.OnClickListener {
-        player.changePitch(1)
+        keyChangeUseCase.changeKey(1)
     }
 
     val pitchDownClickListener = View.OnClickListener {
-        player.changePitch(-1)
+        keyChangeUseCase.changeKey(-1)
     }
 
     val playButtonClickListener = View.OnClickListener {
-        player.playOrPause()
+        playOrPauseUseCase.playOrPause()
     }
 
     val playNextButtonClickListener = View.OnClickListener {
-        player.skipToNext()
+        skipMusicUsecase.skip()
     }
 
     val playPreviousButtonClickListener = View.OnClickListener {
-        player.goToHeadOrPrevious()
+        goToHeadOrPreviousUseCase.goToHeadOrPrevious()
     }
 
     val playModeIconClickListener = View.OnClickListener {
-        player.setNextPlayMode()
+        switchPlayModeUseCase.switch()
     }
 
     val shuffleIconClickListner = View.OnClickListener {
         isShuffle.set(!isShuffle.get())
-        sortPlayListQuery.sort(isShuffle.get())
+        sortPlayListUseCase.sort(isShuffle.get())
         isShuffle.notifyChange()
     }
 }

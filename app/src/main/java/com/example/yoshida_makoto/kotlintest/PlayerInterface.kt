@@ -13,6 +13,4 @@ interface PlayerInterface {
     fun goToHeadOrPrevious()
     fun playNextWithOutLoop()
     fun playNextWithLoop()
-    fun keyUp()
-    fun keyDown()
 }

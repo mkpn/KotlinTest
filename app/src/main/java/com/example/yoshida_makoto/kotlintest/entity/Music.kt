@@ -18,8 +18,7 @@ open class Music(
         key: Int,
         @Ignore val keySubject: BehaviorSubject<Int> = BehaviorSubject.create<Int>()) : RealmObject() {
 
-    constructor() : this(0, "", "", 0, BehaviorSubject.create<Int>()) {
-    }
+    constructor() : this(0, "", "", 0, BehaviorSubject.create<Int>())
 
     var key: Int = 0
         get() = field

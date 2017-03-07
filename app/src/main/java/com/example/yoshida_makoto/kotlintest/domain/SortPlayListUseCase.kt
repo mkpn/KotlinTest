@@ -1,18 +1,21 @@
-package com.example.yoshida_makoto.kotlintest.query
+package com.example.yoshida_makoto.kotlintest.domain
 
 import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.repository.MusicsRepository
 import javax.inject.Inject
 
-class SortPlayListQuery {
+/**
+ * Created by yoshida_makoto on 2017/02/16.
+ */
+class SortPlayListUseCase {
     init {
         Injector.component.inject(this)
     }
 
     @Inject
-    lateinit var musicsRepository: MusicsRepository
+    lateinit var repository: MusicsRepository
 
     fun sort(isShuffle: Boolean) {
-        musicsRepository.sortPlayList(isShuffle)
+        repository.sortPlayList(isShuffle)
     }
 }

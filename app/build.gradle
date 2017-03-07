@@ -4,7 +4,7 @@ apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "com.example.yoshida_makoto.kotlintest"
         minSdkVersion 23
@@ -43,7 +43,6 @@ dependencies {
 
     compile 'org.greenrobot:eventbus:3.0.0'
 
-    compile 'jp.satorufujiwara:exoplayer-textureview:0.6.9'
     compile 'com.google.android.exoplayer:exoplayer:r2.0.4'
 
     //Dagger 2 dependencies

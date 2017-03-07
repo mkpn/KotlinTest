@@ -19,7 +19,7 @@ class PlayMode {
         currentPlayMode.onNext(playModeList[0])
     }
 
-    fun switchNextMode() {
+    fun switchPlayMode() {
         val nextIndex: Int
         if (playModeList.indexOf(currentPlayMode.value) >= playModeList.size - 1) {
             nextIndex = 0

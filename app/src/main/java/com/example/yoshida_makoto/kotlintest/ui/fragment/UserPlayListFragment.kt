@@ -50,7 +50,6 @@ class UserPlayListFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-//        vm.disposables.dispose()
     }
 
 }
