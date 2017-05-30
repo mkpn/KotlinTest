@@ -5,7 +5,7 @@ import io.reactivex.subjects.BehaviorSubject
 /**
  * Created by yoshida_makoto on 2016/12/22.
  */
-class PlayMode {
+class PlayModeValue {
     enum class PlayMode {
         DEFAULT,
         REPEAT_ALL,

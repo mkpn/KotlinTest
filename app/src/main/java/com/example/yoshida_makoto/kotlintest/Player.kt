@@ -12,7 +12,7 @@ import com.example.yoshida_makoto.kotlintest.domain.FindNextMusicUseCase
 import com.example.yoshida_makoto.kotlintest.domain.FindNextMusicWithLoopUseCase
 import com.example.yoshida_makoto.kotlintest.domain.FindPreviousMusicUseCase
 import com.example.yoshida_makoto.kotlintest.entity.Music
-import com.example.yoshida_makoto.kotlintest.value.PlayMode
+import com.example.yoshida_makoto.kotlintest.value.PlayModeValue
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource
@@ -53,7 +53,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     val keyChangeSubject = PublishSubject.create<Int>()!!
     lateinit var currentAudioResource: ExtractorMediaSource
 
-    val playMode = PlayMode()
+    val playMode = PlayModeValue()
     val mainHandler = Handler()
     val defaultBandwidthMeter = DefaultBandwidthMeter()
     val videoTrackSelectionFactory = AdaptiveVideoTrackSelection.Factory(defaultBandwidthMeter)
@@ -123,7 +123,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
 
     override fun skipToNext() {
         when (playMode.currentPlayMode.value) {
-            PlayMode.PlayMode.REPEAT_ALL -> {
+            PlayModeValue.PlayMode.REPEAT_ALL -> {
                 findNextMusicWithLoopQuery.find(music.value)
             }
             else -> {
@@ -211,10 +211,10 @@ class Player(val context: Context) : ExoPlayer.EventListener,
                 currentDurationSubject.onNext(getCurrentDurationString())
 
                 when (playMode.currentPlayMode.value) {
-                    PlayMode.PlayMode.REPEAT_ALL -> {
+                    PlayModeValue.PlayMode.REPEAT_ALL -> {
                         playNextWithLoop()
                     }
-                    PlayMode.PlayMode.REPEAT_ONE -> {
+                    PlayModeValue.PlayMode.REPEAT_ONE -> {
                     }
                     else -> {
                         playNextWithOutLoop()

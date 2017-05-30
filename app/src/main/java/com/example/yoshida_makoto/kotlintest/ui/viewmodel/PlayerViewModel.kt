@@ -9,7 +9,7 @@ import com.example.yoshida_makoto.kotlintest.Player
 import com.example.yoshida_makoto.kotlintest.Util
 import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.domain.*
-import com.example.yoshida_makoto.kotlintest.value.PlayMode
+import com.example.yoshida_makoto.kotlintest.value.PlayModeValue
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
@@ -27,7 +27,7 @@ class PlayerViewModel {
     val durationString = ObservableField<String>("00:00")
     val currentTimeString = ObservableField<String>("00:00")
     var currentMusicKey = ObservableField(0)
-    val playMode = ObservableField<PlayMode.PlayMode>()
+    val playMode = ObservableField<PlayModeValue.PlayMode>()
     val maxProgressValue = ObservableField(0)
     val currentProgressValue = ObservableField(0)
     val isShuffle = ObservableBoolean(false)

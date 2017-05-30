@@ -9,7 +9,7 @@ import com.example.yoshida_makoto.kotlintest.entity.Music
 import com.example.yoshida_makoto.kotlintest.entity.UserPlayList
 import com.example.yoshida_makoto.kotlintest.ui.adapter.MusicListAdapter
 import com.example.yoshida_makoto.kotlintest.ui.decoration.DividerItemDecoration
-import com.example.yoshida_makoto.kotlintest.value.PlayMode
+import com.example.yoshida_makoto.kotlintest.value.PlayModeValue
 
 /**
  * Created by yoshida_makoto on 2016/11/14.
@@ -59,15 +59,15 @@ fun ImageView.setIsContentsPlaying(isPlaying: Boolean) {
 }
 
 @BindingAdapter("playMode")
-fun ImageView.setPlayMode(playMode: PlayMode.PlayMode) {
+fun ImageView.setPlayMode(playMode: PlayModeValue.PlayMode) {
     when (playMode) {
-        PlayMode.PlayMode.DEFAULT -> {
+        PlayModeValue.PlayMode.DEFAULT -> {
             this.setImageResource(R.drawable.ic_repeat_off_36dp)
         }
-        PlayMode.PlayMode.REPEAT_ALL -> {
+        PlayModeValue.PlayMode.REPEAT_ALL -> {
             this.setImageResource(R.drawable.ic_repeat_white_36dp)
         }
-        PlayMode.PlayMode.REPEAT_ONE -> {
+        PlayModeValue.PlayMode.REPEAT_ONE -> {
             this.setImageResource(R.drawable.ic_repeat_one_white_36dp)
         }
     }
