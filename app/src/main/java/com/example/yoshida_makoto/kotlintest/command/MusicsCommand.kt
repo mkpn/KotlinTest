@@ -12,12 +12,12 @@ import javax.inject.Inject
  * Created by yoshida_makoto on 2016/11/18.
  */
 class MusicsCommand {
+    @Inject
+    lateinit var musicsRepository: MusicsRepository
+
     init {
         Injector.component.inject(this)
     }
-
-    @Inject
-    lateinit var musicsRepository: MusicsRepository
 
     val successStream = BehaviorSubject.create<MySuccess>()
     val errorStream = BehaviorSubject.create<MyError>()

@@ -1,9 +1,13 @@
 package com.example.yoshida_makoto.kotlintest.ui.activity
 
 import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.databinding.DataBindingUtil
+import android.media.AudioManager
 import android.os.Bundle
 import android.support.annotation.Nullable
 import android.support.v4.app.ActivityCompat
@@ -15,6 +19,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SearchView
 import android.view.Menu
 import com.example.yoshida_makoto.kotlintest.NotificationPlayerPanelService
+import com.example.yoshida_makoto.kotlintest.Player
 import com.example.yoshida_makoto.kotlintest.R
 import com.example.yoshida_makoto.kotlintest.databinding.ActivityMainBinding
 import com.example.yoshida_makoto.kotlintest.di.Injector
@@ -24,20 +29,35 @@ import com.example.yoshida_makoto.kotlintest.ui.fragment.UserPlayListFragment
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MainViewModel
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import permissions.dispatcher.*
+import javax.inject.Inject
 
 @RuntimePermissions
 class MainActivity : AppCompatActivity() {
     lateinit var playerFragment: PlayerFragment
     lateinit var musicListFragment: MusicListFragment
     lateinit var userPlayListFragment: UserPlayListFragment
+    @Inject
+    lateinit var player: Player
     val tabTitles = arrayOf("Musics", "PlayLists")
     lateinit private var binding: ActivityMainBinding
     private val permissionCheck by lazy { ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) }
     private val MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1
+    val broadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val action = intent?.action ?: return
+            when (action) {
+                AudioManager.ACTION_AUDIO_BECOMING_NOISY -> {
+                    player.stop()
+                }
+            }
+        }
+    }
 
     override fun onCreate(@Nullable savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MainActivityPermissionsDispatcher.initializeWithCheck(this)
+
+        registerReceiver(broadcastReceiver, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY))
     }
 
     override fun onStart() {
@@ -59,6 +79,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        unregisterReceiver(broadcastReceiver)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,

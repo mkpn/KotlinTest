@@ -10,7 +10,6 @@ import com.example.yoshida_makoto.kotlintest.databinding.MusicListFragmentBindin
 import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.ui.decoration.DividerItemDecoration
 import com.example.yoshida_makoto.kotlintest.ui.viewmodel.MusicListFragmentViewModel
-import io.reactivex.disposables.CompositeDisposable
 
 /**
  * Created by yoshida_makoto on 2016/12/16.
@@ -18,7 +17,6 @@ import io.reactivex.disposables.CompositeDisposable
 class MusicListFragment : Fragment() {
     lateinit var binding: MusicListFragmentBinding
     val vm: MusicListFragmentViewModel = MusicListFragmentViewModel()
-    val disposables = CompositeDisposable()
 
     companion object {
         fun newInstance(): MusicListFragment {
@@ -27,8 +25,8 @@ class MusicListFragment : Fragment() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Injector.component.inject(this)
         super.onCreate(savedInstanceState)
+        Injector.component.inject(this)
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {

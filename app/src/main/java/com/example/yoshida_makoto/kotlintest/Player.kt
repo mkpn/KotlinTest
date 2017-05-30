@@ -122,7 +122,6 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     override fun skipToNext() {
-        Log.d("デバッグ", "skipToNext")
         when (playMode.currentPlayMode.value) {
             PlayMode.PlayMode.REPEAT_ALL -> {
                 findNextMusicWithLoopQuery.find(music.value)

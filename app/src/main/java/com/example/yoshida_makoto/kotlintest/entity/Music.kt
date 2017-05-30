@@ -10,7 +10,6 @@ import java.util.regex.Pattern
  * RealmObjectを継承したクラスでvalは使えないぽい？あと、open classじゃないとダメっぽい
  * Created by yoshida_makoto on 2016/09/21.
  */
-//TODO 曲ごとにメモが残せてもいいかも
 open class Music(
         @PrimaryKey var id: Long = 0,
         var title: String = "",
