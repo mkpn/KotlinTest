@@ -2,6 +2,7 @@ package com.example.yoshida_makoto.kotlintest
 
 import android.content.ContentUris
 import android.content.Context
+import android.content.Intent
 import android.media.PlaybackParams
 import android.os.Handler
 import android.provider.MediaStore
@@ -25,6 +26,7 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
+
 
 /**
  * Created by yoshida_makoto on 2016/10/25.
@@ -113,11 +115,13 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     override fun pause() {
+        sendMusicServiceBroadCast("pause")
         isPlaying.onNext(false)
         exoPlayer.playWhenReady = false
     }
 
     override fun stop() {
+        sendMusicServiceBroadCast("stop")
         exoPlayer.stop()
     }
 
@@ -154,8 +158,15 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     fun playMusic() {
+        sendMusicServiceBroadCast("stop")
         isPlaying.onNext(true)
         exoPlayer.playWhenReady = true
+    }
+
+    fun sendMusicServiceBroadCast(command: String) {
+        val i = Intent("com.android.music.musicservicecommand")
+        i.putExtra("command", command)
+        context.sendBroadcast(i)
     }
 
     fun playMusic(music: Music) {

@@ -6,6 +6,7 @@ import com.example.yoshida_makoto.kotlintest.di.DaggerAppComponent
 import com.example.yoshida_makoto.kotlintest.di.Injector
 import com.example.yoshida_makoto.kotlintest.di.RootModule
 import io.realm.Realm
+import timber.log.Timber
 
 /**
  * Created by yoshida_makoto on 2016/10/26.
@@ -16,6 +17,7 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         Realm.init(this)
+        Timber.plant(Timber.DebugTree())
         Injector.init(applicationComponent)
     }
 }
