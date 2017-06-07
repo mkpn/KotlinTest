@@ -45,12 +45,11 @@ class MainActivity : AppCompatActivity() {
     private val MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1
     val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            Timber.d("デバッグ onReceive")
             val action = intent?.action ?: return
             when (action) {
                 AudioManager.ACTION_AUDIO_BECOMING_NOISY -> {
                     Timber.d("デバッグ ACTION_AUDIO_BECOMING_NOISY")
-                    player.stop()
+                    player.pause()
                 }
             }
         }

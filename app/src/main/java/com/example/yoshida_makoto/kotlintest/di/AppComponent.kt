@@ -2,6 +2,7 @@ package com.example.yoshida_makoto.kotlintest.di
 
 import com.example.yoshida_makoto.kotlintest.NotificationPlayerPanelService
 import com.example.yoshida_makoto.kotlintest.Player
+import com.example.yoshida_makoto.kotlintest.Receiver
 import com.example.yoshida_makoto.kotlintest.command.MusicsCommand
 import com.example.yoshida_makoto.kotlintest.domain.*
 import com.example.yoshida_makoto.kotlintest.repository.MusicsRepository
@@ -43,4 +44,5 @@ interface AppComponent {
     fun inject(shufflePlayListUseCase: SortPlayListUseCase)
     fun inject(findNextMusicUseCase: FindNextMusicUseCase)
     fun inject(musicRowViewModel: MusicRowViewModel)
+    fun inject(receiver: Receiver)
 }

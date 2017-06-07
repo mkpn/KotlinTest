@@ -115,13 +115,13 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     override fun pause() {
-        sendMusicServiceBroadCast("pause")
+//        sendMusicServiceBroadCast("pause")
         isPlaying.onNext(false)
         exoPlayer.playWhenReady = false
     }
 
     override fun stop() {
-        sendMusicServiceBroadCast("stop")
+//        sendMusicServiceBroadCast("stop")
         exoPlayer.stop()
     }
 
@@ -158,7 +158,7 @@ class Player(val context: Context) : ExoPlayer.EventListener,
     }
 
     fun playMusic() {
-        sendMusicServiceBroadCast("stop")
+//        sendMusicServiceBroadCast("pause")
         isPlaying.onNext(true)
         exoPlayer.playWhenReady = true
     }
